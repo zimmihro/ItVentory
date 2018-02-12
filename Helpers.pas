@@ -1,0 +1,48 @@
+unit Helpers;
+
+interface
+
+uses IdHashMessageDigest, idHash;
+
+type SuchEintrag = record
+  SpaltenName : string;
+  AnzeigeName : string;
+end;
+
+type Suche = class
+
+end;
+
+function getMD5Hash(input: string): string;
+function getRandomString(strLength: integer): string;
+
+implementation
+
+
+{ THelper }
+
+function getMD5Hash(input: string): string;
+var
+  md5hasher: TIdHashMessageDigest5;
+begin
+  md5hasher := TIdHashMessageDigest5.Create;
+  try
+    result := md5hasher.HashStringAsHex(input);
+  finally
+    md5hasher.Free;
+  end;
+end;
+
+function getRandomString(strLength: integer): string;
+var
+  temp: integer;
+begin
+  randomize;
+  repeat
+    temp := random(255);
+    if temp in [33 .. 126] then
+      result := result + Chr(temp);
+  until length(result) = strLength;
+end;
+
+end.
