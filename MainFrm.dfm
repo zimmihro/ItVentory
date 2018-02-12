@@ -17,7 +17,9 @@ object MainForm: TMainForm
   TextHeight = 13
   object MainConnection: TFDConnection
     Params.Strings = (
-      'Database=D:\Projekte\ItVentory\Database\ItVentory.db'
+      
+        'Database=C:\Users\zimmi\Documents\GitHub\ItVentory\Database\ItVe' +
+        'ntory.db'
       'DriverID=SQLite'
       'LockingMode=Normal')
     LoginPrompt = False
