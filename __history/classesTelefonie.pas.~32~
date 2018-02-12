@@ -88,7 +88,7 @@ type
     procedure Aktualisieren();
 
   const
-    TableName: string = 'SimKarte';
+    TableName: Sstring = 'SimKarte';
   end;
 
 implementation
@@ -100,8 +100,8 @@ begin
   with self.SqlQuery, SQL do
   begin
     Clear;
-    Add('SELECT Id FROM ' + self.TableName + ' ORDER BY Id DESC LIMIT 1');
-    // ParamByName('tabelle').Value := self.TableName;
+    Add('SELECT Id FROM :table ORDER BY Id DESC LIMIT 1');
+    ParamByName('table').Value := self.TableName;
   end;
   self.SqlQuery.Open;
   self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
@@ -115,9 +115,9 @@ begin
     with self.SqlQuery, SQL do
     begin
       Clear;
-      Add('DELETE FROM :tabelle WHERE Id = :id');
-      ParamByName('tabelle').Value := self.TableName;
-      ParamByName('id').Value      := self.Id;
+      Add('DELETE FROM :table WHERE Id = :id');
+      ParamByName('table').Value := self.TableName;
+      ParamByName('id').Value    := self.Id;
     end;
     self.SqlQuery.ExecSQL;
   end;
@@ -130,11 +130,11 @@ begin
   with self.SqlQuery, SQL do
   begin
     Clear;
-    Add('UPDATE :tabelle SET Bezeichnung = :bezeichnung,');
+    Add('UPDATE :table SET Bezeichnung = :bezeichnung,');
     Add('istTelefonieMoeglich = :telefonie,');
     Add('istSubventionierbar = :subvention');
     Add('WHERE Id = :id');
-    ParamByName('tabelle').Value     := self.TableName;
+    ParamByName('table').Value       := self.TableName;
     ParamByName('bezeichnung').Value := self.Bezeichnung;
     ParamByName('telefonie').Value   := self.TelefonieMoeglich;
     ParamByName('subvention').Value  := self.IstSubventionierbar;
@@ -160,10 +160,9 @@ begin
   self.SqlQuery.Connection := Connection;
   with self.SqlQuery, SQL do
   begin
-    Add('SELECT * FROM ' + self.TableName + ' WHERE Id = :id');
-    // Add('SELECT * FROM :tabelle WHERE Id = :id');
-    // ParamByName('tabelle').Value := self.TableName;
-    ParamByName('id').Value := Id;
+    Add('SELECT * FROM :table WHERE Id = :id');
+    ParamByName('table').Value := self.TableName;
+    ParamByName('id').Value    := Id;
   end;
   self.SqlQuery.Open;
   if self.SqlQuery.RecordCount = 1 then
@@ -183,9 +182,9 @@ begin
     with self.SqlQuery, SQL do
     begin
       Clear;
-      Add('INSERT INTO :tabelle (Bezeichnung, istTelefonieMoeglich, istSubventionierbar)');
+      Add('INSERT INTO :table (Bezeichnung, istTelefonieMoeglich, istSubventionierbar)');
       Add('VALUES (:bezeichnung,:telefonie,:subvention)');
-      ParamByName('tabelle').Value     := self.TableName;
+      ParamByName('table').Value       := self.TableName;
       ParamByName('bezeichnung').Value := self.Bezeichnung;
       ParamByName('telefonie').Value   := self.TelefonieMoeglich;
       ParamByName('subvention').Value  := self.IstSubventionierbar;
@@ -204,7 +203,7 @@ begin
     with self.SqlQuery, SQL do
     begin
       Clear;
-      Add('UPDATE :tabelle SET ');
+      Add('UPDATE :table SET ');
       Add('Nummer = :nr, ');
       Add('InterneKennung = :kennung,');
       Add('Tarif_Id = :tarif,');
@@ -212,7 +211,7 @@ begin
       Add('VertragsEnde = :ende,');
       Add('NaechsteSubvention = :subvention');
       Add('WHERE Id = :id');
-      ParamByName('tabelle').Value    := self.TableName;
+      ParamByName('table').Value      := self.TableName;
       ParamByName('nr').Value         := self.Nummer;
       ParamByName('kennung').Value    := self.InterneKennung;
       ParamByName('tarif').Value      := self.Tarif.Id;
@@ -245,9 +244,9 @@ begin
   self.SqlQuery.Connection := Connection;
   with self.SqlQuery, SQL do
   begin
-    Add('SELECT * FROM ' + self.TableName + ' WHERE Id = :id');
-    // ParamByName('tabelle').Value := self.TableName;
-    ParamByName('id').Value := Id;
+    Add('SELECT * FROM :table WHERE Id = :id');
+    ParamByName('table').Value := self.TableName;
+    ParamByName('id').Value    := Id;
   end;
   self.SqlQuery.Open;
   if self.SqlQuery.RecordCount = 1 then
@@ -270,10 +269,10 @@ begin
     with self.SqlQuery, SQL do
     begin
       Clear;
-      Add('INSERT INTO :tabelle (Nummer, InterneKennung, Tarif_Id, ');
+      Add('INSERT INTO :table (Nummer, InterneKennung, Tarif_Id, ');
       Add('VertragsBeginn, VertragsEnde, NaechsteSubvention)');
       Add('VALUES (:nr,:kennung,:tarif,:begin,:ende,:subvention)');
-      ParamByName('tabelle').Value    := self.TableName;
+      ParamByName('table').Value      := self.TableName;
       ParamByName('nr').Value         := self.Nummer;
       ParamByName('kennung').Value    := self.InterneKennung;
       ParamByName('tarif').Value      := self.Tarif.Id;
@@ -295,13 +294,13 @@ begin
     with self.SqlQuery, SQL do
     begin
       Clear;
-      Add('UPDATE :tabelle SET');
+      Add('UPDATE :table SET');
       Add('SerienNummer = :seriennr, ');
       Add('Pin = :pin,');
       Add('SuperPin = :superpin,');
       Add('Rufnummer_Id = :rufnummer');
       Add('WHERE Id = :id');
-      ParamByName('tabelle').Value   := self.TableName;
+      ParamByName('table').Value     := self.TableName;
       ParamByName('seriennr').Value  := self.SerienNummer;
       ParamByName('pin').Value       := self.Pin;
       ParamByName('superpin').Value  := self.SuperPin;
@@ -330,9 +329,9 @@ begin
   self.SqlQuery.Connection := Connection;
   with self.SqlQuery, SQL do
   begin
-    Add('SELECT * FROM ' + self.TableName + ' WHERE Id = :id');
-    // ParamByName('tabelle').Value := self.TableName;
-    ParamByName('id').Value := Id;
+    Add('SELECT * FROM :table WHERE Id = :id');
+    ParamByName('table').Value := self.TableName;
+    ParamByName('id').Value    := Id;
   end;
   self.SqlQuery.SQL := self.SqlQuery.SQL;
   self.SqlQuery.Open;
@@ -380,9 +379,9 @@ begin
     with self.SqlQuery, SQL do
     begin
       Clear;
-      Add('INSERT INTO :tabelle (SerienNummer, Pin, SuperPin, Rufnummer_Id)');
+      Add('INSERT INTO :table (SerienNummer, Pin, SuperPin, Rufnummer_Id)');
       Add('VALUES (:seriennr,:pin,:superpin,:rufnummer'')');
-      ParamByName('tabelle').Value   := self.TableName;
+      ParamByName('table').Value     := self.TableName;
       ParamByName('seriennr').Value  := self.SerienNummer;
       ParamByName('pin').Value       := self.Pin;
       ParamByName('superpin').Value  := self.SuperPin;

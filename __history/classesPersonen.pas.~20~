@@ -27,7 +27,7 @@ type
     procedure Loeschen();
 
   const
-    TABLE_NAME = 'Mitarbeiter';
+    TableName = 'Mitarbeiter';
   end;
 
 type
@@ -49,7 +49,7 @@ type
     procedure Aktualisieren();
 
   const
-    TABLE_NAME = 'Benutzer';
+    TableName = 'Benutzer';
   end;
 
 type
@@ -76,7 +76,7 @@ begin
     Add('Name = :name, ');
     Add('Vorname = :vorname,');
     Add('WHERE Id = :id');
-    ParamByName('table').Value   := self.TABLE_NAME;
+    ParamByName('table').Value   := self.TableName;
     ParamByName('name').Value    := self.name;
     ParamByName('vorname').Value := self.Vorname;
     ParamByName('id').Value      := self.Id;
@@ -100,7 +100,7 @@ begin
   begin
     Clear;
     Add('SELECT * FROM :table WHERE Id = :id');
-    ParamByName('table').Value := self.TABLE_NAME;
+    ParamByName('table').Value := self.TableName;
     ParamByName('id').Value    := Id;
   end;
   self.SqlQuery.Open;
@@ -119,7 +119,7 @@ begin
   begin
     Clear;
     Add('SELECT Id FROM :table ORDER BY Id DESC LIMIT 1');
-    ParamByName('table').Value := self.TABLE_NAME;
+    ParamByName('table').Value := self.TableName;
   end;
   self.SqlQuery.Open;
   if self.SqlQuery.RecordCount = 1 then
@@ -133,7 +133,7 @@ begin
   begin
     Clear;
     Add('DELETE FROM :table WHERE Id = :id');
-    ParamByName('table').Value := self.TABLE_NAME;
+    ParamByName('table').Value := self.TableName;
     ParamByName('id').Value    := self.Id;
   end;
   self.SqlQuery.ExecSQL;
@@ -146,7 +146,7 @@ begin
     Clear;
     Add('INSERT INTO :table (Name, Vorname)');
     Add('VALUES (:name,:vorname'')');
-    ParamByName('table').Value   := self.TABLE_NAME;
+    ParamByName('table').Value   := self.TableName;
     ParamByName('name').Value    := self.name;
     ParamByName('vorname').Value := self.Vorname;
   end;
@@ -168,7 +168,7 @@ begin
     Add('Name = :name, ');
     Add('Vorname = :vorname');
     Add('WHERE Id = :id');
-    ParamByName('table').Value   := self.TABLE_NAME;
+    ParamByName('table').Value   := self.TableName;
     ParamByName('login').Value   := self.Login;
     ParamByName('pw').Value      := self.Md5Passwort;
     ParamByName('salt').Value    := self.Md5Salt;
@@ -199,7 +199,7 @@ begin
   begin
     Clear;
     Add('SELECT * FROM :table WHERE Id = :id');
-    ParamByName('table').Value := self.TABLE_NAME;
+    ParamByName('table').Value := self.TableName;
     ParamByName('id').Value    := Id;
   end;
   self.SqlQuery.Open;
@@ -238,7 +238,7 @@ begin
     Clear;
     Add('INSERT INTO :table (Login, Md5Passwort, Md5Salt, Name, Vorname)');
     Add('VALUES (:login, :pw, :salt, :name, :vorname)');
-    ParamByName('table').Value   := self.TABLE_NAME;
+    ParamByName('table').Value   := self.TableName;
     ParamByName('login').Value   := self.Login;
     ParamByName('pw').Value      := self.Md5Passwort;
     ParamByName('salt').Value    := self.Md5Salt;

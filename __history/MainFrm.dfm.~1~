@@ -20,7 +20,7 @@ object MainForm: TMainForm
       'Database=D:\Projekte\ItVentory\Database\ItVentory.db'
       'DriverID=SQLite'
       'LockingMode=Normal')
-    LoginPrompt = False
+    Connected = True
     Left = 560
     Top = 272
   end
@@ -37,12 +37,5 @@ object MainForm: TMainForm
         OnClick = Mitarbeiter1Click
       end
     end
-  end
-  object FDQuery1: TFDQuery
-    Connection = MainConnection
-    SQL.Strings = (
-      'SELECT * FROM Benutzer ')
-    Left = 376
-    Top = 336
   end
 end

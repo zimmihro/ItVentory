@@ -160,7 +160,7 @@ begin
   self.SqlQuery.Connection := Connection;
   with self.SqlQuery, SQL do
   begin
-    Add('SELECT * FROM ' + self.TableName + ' WHERE Id = :id');
+    Add('SELECT * FROM :tabelle WHERE Id = :id');
     // Add('SELECT * FROM :tabelle WHERE Id = :id');
     // ParamByName('tabelle').Value := self.TableName;
     ParamByName('id').Value := Id;

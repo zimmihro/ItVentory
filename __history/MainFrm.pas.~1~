@@ -8,8 +8,7 @@ uses
   FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs, FireDAC.VCLUI.Wait, Data.DB,
-  FireDAC.Comp.Client, Vcl.Menus, FireDAC.Stan.Param, FireDAC.DatS,
-  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet;
+  FireDAC.Comp.Client, Vcl.Menus;
 
 type
   TMainForm = class(TForm)
@@ -18,7 +17,6 @@ type
     Datei1: TMenuItem;
     Stammdaten1: TMenuItem;
     Mitarbeiter1: TMenuItem;
-    FDQuery1: TFDQuery;
     procedure FormShow(Sender: TObject);
     procedure Mitarbeiter1Click(Sender: TObject);
   private
@@ -58,15 +56,10 @@ end;
 procedure TMainForm.FormShow(Sender: TObject);
 var
   sim : TSimKarte;
-  I: Integer;
 begin
-  //BenutzerAnmelden;
+  BenutzerAnmelden;
   sim := TSimKarte.CreateFromId(1, MainConnection);
   sim.Free;
-  self.FDQuery1.Open();
-  for I := 0 to self.FDQuery1.FieldList.Count-1 do
-  MessageDlg(self.FDQuery1.Fields[i].DisplayName , mtError, [mbOk], 0);
-
 end;
 
 procedure TMainForm.Mitarbeiter1Click(Sender: TObject);

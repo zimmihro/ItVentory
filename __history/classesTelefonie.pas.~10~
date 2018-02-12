@@ -1,4 +1,4 @@
-unit classesTelefonie;
+﻿unit classesTelefonie;
 
 interface
 
@@ -8,7 +8,7 @@ uses System.SysUtils, System.StrUtils, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.S
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, System.UITypes;
 
 type
-  TTelefonieObjekt = class
+  TTelefonie = class
   private
     SqlQuery: TFDQuery;
     FId     : integer;
@@ -18,16 +18,18 @@ type
     procedure Loeschen();
 
   const
-    TableName: string = '';
+    TableName = '';
   end;
 
 type
-  TTarif = class(TTelefonieObjekt)
+  TTarif = class(TTelefonie)
   private
     FBezeichnung        : string;
     FTelefonieMoeglich  : boolean;
     FIstSubventionierbar: boolean;
+    procedure IdErmitteln();
   public
+    property Id                 : integer read FId write FId;
     property Bezeichnung        : string read FBezeichnung write FBezeichnung;
     property TelefonieMoeglich  : boolean read FTelefonieMoeglich write FTelefonieMoeglich;
     property IstSubventionierbar: boolean read FIstSubventionierbar write FIstSubventionierbar;
@@ -36,14 +38,17 @@ type
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
     procedure Aktualisieren();
+    procedure Loeschen();
 
   const
-    TableName: String = 'Tarif';
+    TableName = '';
   end;
 
 type
-  TRufnummer = class(TTelefonieObjekt)
+  TRufnummer = class
   private
+    RufnummerQuery     : TFDQuery;
+    FId                : integer;
     FNummer            : string;
     FInterneKennung    : string;
     FTarif             : TTarif;
@@ -51,6 +56,7 @@ type
     FVertragsEnde      : Variant;
     FNaechsteSubvention: Variant;
   public
+    property Id                : integer read FId write FId;
     property Nummer            : string read FNummer write FNummer;
     property InterneKennung    : string read FInterneKennung write FInterneKennung;
     property Tarif             : TTarif read FTarif write FTarif;
@@ -61,15 +67,16 @@ type
       vertBegin, vertEnde, nextSubvention: Variant; Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
+    procedure IdErmitteln();
     procedure Aktualisieren();
-
-  const
-    TableName: string = 'Rufnummer';
+    procedure Loeschen();
   end;
 
 type
-  TSimKarte = class(TTelefonieObjekt)
+  TSimKarte = class
   private
+    SimKarteQuery: TFDQuery;
+    FId          : integer;
     FSerienNummer: string;
     FPin         : string;
     FSuperPin    : string;
@@ -77,6 +84,7 @@ type
     procedure setPin(Value: string);
     procedure setSuperPin(Value: string);
   public
+    property Id          : integer read FId write FId;
     property SerienNummer: string read FSerienNummer write FSerienNummer;
     property Pin         : string read FPin write setPin;
     property SuperPin    : string read FSuperPin write setSuperPin;
@@ -85,112 +93,103 @@ type
       Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
+    procedure IdErmitteln();
     procedure Aktualisieren();
-
-  const
-    TableName: string = 'SimKarte';
+    procedure Loeschen();
   end;
 
 implementation
-
-{ TTelefonie }
-
-procedure TTelefonieObjekt.IdErmitteln;
-begin
-  with self.SqlQuery, SQL do
-  begin
-    Clear;
-    Add('SELECT Id FROM ' + self.TableName + ' ORDER BY Id DESC LIMIT 1');
-    // ParamByName('tabelle').Value := self.TableName;
-  end;
-  self.SqlQuery.Open;
-  self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
-  self.SqlQuery.Close;
-end;
-
-procedure TTelefonieObjekt.Loeschen;
-begin
-  if self.Id <> 0 then
-  begin
-    with self.SqlQuery, SQL do
-    begin
-      Clear;
-      Add('DELETE FROM :tabelle WHERE Id = :id');
-      ParamByName('tabelle').Value := self.TableName;
-      ParamByName('id').Value      := self.Id;
-    end;
-    self.SqlQuery.ExecSQL;
-  end;
-end;
 
 { TTarif }
 
 procedure TTarif.Aktualisieren;
 begin
-  with self.SqlQuery, SQL do
+  with self.TarifQuery, SQL do
   begin
     Clear;
-    Add('UPDATE :tabelle SET Bezeichnung = :bezeichnung,');
+    Add('UPDATE Tarif SET Bezeichnung = :bezeichnung,');
     Add('istTelefonieMoeglich = :telefonie,');
     Add('istSubventionierbar = :subvention');
     Add('WHERE Id = :id');
-    ParamByName('tabelle').Value     := self.TableName;
     ParamByName('bezeichnung').Value := self.Bezeichnung;
     ParamByName('telefonie').Value   := self.TelefonieMoeglich;
     ParamByName('subvention').Value  := self.IstSubventionierbar;
     ParamByName('id').Value          := self.Id;
   end;
-  self.SqlQuery.ExecSQL;
+  self.TarifQuery.ExecSQL;
 end;
 
 constructor TTarif.Create(Bezeichnung: string; telefonie, subvention: boolean;
   Connection: TFDConnection);
 begin
-  self.Id                  := 0;
-  self.Bezeichnung         := Bezeichnung;
-  self.TelefonieMoeglich   := telefonie;
-  self.IstSubventionierbar := subvention;
-  self.SqlQuery            := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
+  self.Id                    := 0;
+  self.Bezeichnung           := Bezeichnung;
+  self.TelefonieMoeglich     := telefonie;
+  self.IstSubventionierbar   := subvention;
+  self.TarifQuery            := TFDQuery.Create(nil);
+  self.TarifQuery.Connection := Connection;
 end;
 
 constructor TTarif.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
-  self.SqlQuery            := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
-  with self.SqlQuery, SQL do
+  self.TarifQuery            := TFDQuery.Create(nil);
+  self.TarifQuery.Connection := Connection;
+  with self.TarifQuery, SQL do
   begin
-    Add('SELECT * FROM ' + self.TableName + ' WHERE Id = :id');
-    // Add('SELECT * FROM :tabelle WHERE Id = :id');
-    // ParamByName('tabelle').Value := self.TableName;
+    Add('SELECT * FROM Tarif WHERE Id = :id');
     ParamByName('id').Value := Id;
   end;
-  self.SqlQuery.Open;
-  if self.SqlQuery.RecordCount = 1 then
+  self.TarifQuery.Open;
+  if self.TarifQuery.RecordCount = 1 then
   begin
-    self.Id                  := self.SqlQuery.FieldByName('Id').AsInteger;
-    self.Bezeichnung         := self.SqlQuery.FieldByName('Bezeichnung').AsString;
-    self.TelefonieMoeglich   := self.SqlQuery.FieldByName('istTelefonieMoeglich').AsBoolean;
-    self.IstSubventionierbar := self.SqlQuery.FieldByName('istSubventionierbar').AsBoolean;
+    self.Id                  := self.TarifQuery.FieldByName('Id').AsInteger;
+    self.Bezeichnung         := self.TarifQuery.FieldByName('Bezeichnung').AsString;
+    self.TelefonieMoeglich   := self.TarifQuery.FieldByName('istTelefonieMoeglich').AsBoolean;
+    self.IstSubventionierbar := self.TarifQuery.FieldByName('istSubventionierbar').AsBoolean;
   end;
-  self.SqlQuery.Close;
+  self.TarifQuery.Close;
+end;
+
+procedure TTarif.IdErmitteln;
+begin
+  with self.TarifQuery, SQL do
+  begin
+    Clear;
+    Add('SELECT Id FROM Tarif ORDER BY Id DESC LIMIT 1');
+  end;
+  self.TarifQuery.Open;
+  self.Id := self.TarifQuery.FieldByName('Id').AsInteger;
+  self.TarifQuery.Close;
+end;
+
+procedure TTarif.Loeschen;
+begin
+  if self.Id <> 0 then
+  begin
+    with self.TarifQuery, SQL do
+    begin
+      Clear;
+      Add('DELETE FROM Tarif WHERE Id = :id');
+      ParamByName('id').Value := self.Id;
+    end;
+    self.TarifQuery.ExecSQL;
+  end;
 end;
 
 procedure TTarif.Speichern;
 begin
   if self.Id = 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.TarifQuery, SQL do
     begin
       Clear;
-      Add('INSERT INTO :tabelle (Bezeichnung, istTelefonieMoeglich, istSubventionierbar)');
+      Add('INSERT INTO Tarif (Bezeichnung, istTelefonieMoeglich, istSubventionierbar)');
       Add('VALUES (:bezeichnung,:telefonie,:subvention)');
-      ParamByName('tabelle').Value     := self.TableName;
       ParamByName('bezeichnung').Value := self.Bezeichnung;
       ParamByName('telefonie').Value   := self.TelefonieMoeglich;
       ParamByName('subvention').Value  := self.IstSubventionierbar;
     end;
-    self.SqlQuery.ExecSQL;
+    self.TarifQuery.ExecSQL;
     self.IdErmitteln;
   end;
 end;
@@ -201,10 +200,10 @@ procedure TRufnummer.Aktualisieren;
 begin
   if self.Id <> 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.RufnummerQuery, SQL do
     begin
       Clear;
-      Add('UPDATE :tabelle SET ');
+      Add('UPDATE Rufnummer SET ');
       Add('Nummer = :nr, ');
       Add('InterneKennung = :kennung,');
       Add('Tarif_Id = :tarif,');
@@ -212,7 +211,6 @@ begin
       Add('VertragsEnde = :ende,');
       Add('NaechsteSubvention = :subvention');
       Add('WHERE Id = :id');
-      ParamByName('tabelle').Value    := self.TableName;
       ParamByName('nr').Value         := self.Nummer;
       ParamByName('kennung').Value    := self.InterneKennung;
       ParamByName('tarif').Value      := self.Tarif.Id;
@@ -221,59 +219,84 @@ begin
       ParamByName('subvention').Value := self.NaechsteSubvention;
       ParamByName('id').Value         := self.Id;
     end;
-    self.SqlQuery.ExecSQL;
+    self.RufnummerQuery.ExecSQL;
   end;
 end;
 
 constructor TRufnummer.Create(Nummer, kennung: string; Tarif: TTarif;
   vertBegin, vertEnde, nextSubvention: Variant; Connection: TFDConnection);
 begin
-  self.Id                  := 0;
-  self.Nummer              := Nummer;
-  self.InterneKennung      := kennung;
-  self.Tarif               := Tarif;
-  self.VertragsBegin       := vertBegin;
-  self.VertragsEnde        := vertEnde;
-  self.NaechsteSubvention  := nextSubvention;
-  self.SqlQuery            := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
+  self.Id                        := 0;
+  self.Nummer                    := Nummer;
+  self.InterneKennung            := kennung;
+  self.Tarif                     := Tarif;
+  self.VertragsBegin             := vertBegin;
+  self.VertragsEnde              := vertEnde;
+  self.NaechsteSubvention        := nextSubvention;
+  self.RufnummerQuery            := TFDQuery.Create(nil);
+  self.RufnummerQuery.Connection := Connection;
 end;
 
 constructor TRufnummer.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
-  self.SqlQuery            := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
-  with self.SqlQuery, SQL do
+  self.RufnummerQuery            := TFDQuery.Create(nil);
+  self.RufnummerQuery.Connection := Connection;
+  with self.RufnummerQuery, SQL do
   begin
-    Add('SELECT * FROM ' + self.TableName + ' WHERE Id = :id');
-    // ParamByName('tabelle').Value := self.TableName;
+    Add('SELECT * FROM Rufnummer WHERE Id = :id');
     ParamByName('id').Value := Id;
   end;
-  self.SqlQuery.Open;
-  if self.SqlQuery.RecordCount = 1 then
+  self.RufnummerQuery.Open;
+  if self.RufnummerQuery.RecordCount = 1 then
   begin
-    self.Id             := self.SqlQuery.FieldByName('Id').AsInteger;
-    self.Nummer         := self.SqlQuery.FieldByName('Nummer').AsString;
-    self.InterneKennung := self.SqlQuery.FieldByName('InterneKennung').AsString;
-    self.Tarif := TTarif.CreateFromId(self.SqlQuery.FieldByName('Tarif_Id').AsInteger, Connection);
-    self.VertragsBegin      := self.SqlQuery.FieldByName('VertragsBeginn').AsDateTime;
-    self.VertragsEnde       := self.SqlQuery.FieldByName('VertragsEnde').AsVariant;
-    self.NaechsteSubvention := self.SqlQuery.FieldByName('NaechsteSubvention').AsVariant;
+    self.Id             := self.RufnummerQuery.FieldByName('Id').AsInteger;
+    self.Nummer         := self.RufnummerQuery.FieldByName('Nummer').AsString;
+    self.InterneKennung := self.RufnummerQuery.FieldByName('InterneKennung').AsString;
+    self.Tarif := TTarif.CreateFromId(self.RufnummerQuery.FieldByName('Tarif_Id').AsInteger,
+      Connection);
+    self.VertragsBegin      := self.RufnummerQuery.FieldByName('VertragsBeginn').AsDateTime;
+    self.VertragsEnde       := self.RufnummerQuery.FieldByName('VertragsEnde').AsVariant;
+    self.NaechsteSubvention := self.RufnummerQuery.FieldByName('NaechsteSubvention').AsVariant;
   end;
 
+end;
+
+procedure TRufnummer.IdErmitteln;
+begin
+  with self.RufnummerQuery, SQL do
+  begin
+    Clear;
+    Add('SELECT Id FROM Rufnummer ORDER BY Id DESC LIMIT 1');
+  end;
+  self.RufnummerQuery.Open;
+  self.Id := self.RufnummerQuery.FieldByName('Id').AsInteger;
+  self.RufnummerQuery.Close;
+end;
+
+procedure TRufnummer.Loeschen;
+begin
+  if self.Id <> 0 then
+  begin
+    with self.RufnummerQuery, SQL do
+    begin
+      Clear;
+      Add('DELETE FROM Rufnummer WHERE Id = :id');
+      ParamByName('id').Value := self.Id;
+    end;
+    self.RufnummerQuery.ExecSQL;
+  end;
 end;
 
 procedure TRufnummer.Speichern;
 begin
   if self.Id = 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.RufnummerQuery, SQL do
     begin
       Clear;
-      Add('INSERT INTO :tabelle (Nummer, InterneKennung, Tarif_Id, ');
+      Add('INSERT INTO Rufnummer (Nummer, InterneKennung, Tarif_Id, ');
       Add('VertragsBeginn, VertragsEnde, NaechsteSubvention)');
       Add('VALUES (:nr,:kennung,:tarif,:begin,:ende,:subvention)');
-      ParamByName('tabelle').Value    := self.TableName;
       ParamByName('nr').Value         := self.Nummer;
       ParamByName('kennung').Value    := self.InterneKennung;
       ParamByName('tarif').Value      := self.Tarif.Id;
@@ -281,7 +304,7 @@ begin
       ParamByName('ende').Value       := self.VertragsEnde;
       ParamByName('subvention').Value := self.NaechsteSubvention;
     end;
-    self.SqlQuery.ExecSQL;
+    self.RufnummerQuery.ExecSQL;
     self.IdErmitteln;
   end;
 end;
@@ -292,58 +315,81 @@ procedure TSimKarte.Aktualisieren;
 begin
   if self.Id <> 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.SimKarteQuery, SQL do
     begin
       Clear;
-      Add('UPDATE :tabelle SET');
+      Add('UPDATE SimKarte SET');
       Add('SerienNummer = :seriennr, ');
       Add('Pin = :pin,');
       Add('SuperPin = :superpin,');
       Add('Rufnummer_Id = :rufnummer');
       Add('WHERE Id = :id');
-      ParamByName('tabelle').Value   := self.TableName;
       ParamByName('seriennr').Value  := self.SerienNummer;
       ParamByName('pin').Value       := self.Pin;
       ParamByName('superpin').Value  := self.SuperPin;
       ParamByName('rufnummer').Value := self.Rufnummer.Id;
       ParamByName('id').Value        := self.Id;
     end;
-    self.SqlQuery.ExecSQL;
+    self.SimKarteQuery.ExecSQL;
   end;
 end;
 
 constructor TSimKarte.Create(SerienNummer, Pin, SuperPin: string; Rufnummer: TRufnummer;
   Connection: TFDConnection);
 begin
-  self.Id                  := 0;
-  self.SerienNummer        := SerienNummer;
-  self.Pin                 := Pin;
-  self.SuperPin            := SuperPin;
-  self.Rufnummer           := Rufnummer;
-  self.SqlQuery            := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
+  self.Id                       := 0;
+  self.SerienNummer             := SerienNummer;
+  self.Pin                      := Pin;
+  self.SuperPin                 := SuperPin;
+  self.Rufnummer                := Rufnummer;
+  self.SimKarteQuery            := TFDQuery.Create(nil);
+  self.SimKarteQuery.Connection := Connection;
 end;
 
 constructor TSimKarte.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
-  self.SqlQuery            := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
-  with self.SqlQuery, SQL do
+  self.SimKarteQuery            := TFDQuery.Create(nil);
+  self.SimKarteQuery.Connection := Connection;
+  with self.SimKarteQuery, SQL do
   begin
-    Add('SELECT * FROM ' + self.TableName + ' WHERE Id = :id');
-    // ParamByName('tabelle').Value := self.TableName;
+    Add('SELECT * FROM SimKarte WHERE Id = :id');
     ParamByName('id').Value := Id;
   end;
-  self.SqlQuery.SQL := self.SqlQuery.SQL;
-  self.SqlQuery.Open;
-  if self.SqlQuery.RecordCount = 1 then
+  self.SimKarteQuery.Open;
+  if self.SimKarteQuery.RecordCount = 1 then
   begin
-    self.Id           := self.SqlQuery.FieldByName('Id').AsInteger;
-    self.SerienNummer := self.SqlQuery.FieldByName('Seriennummer').AsString;
-    self.Pin          := self.SqlQuery.FieldByName('Pin').AsString;
-    self.SuperPin     := self.SqlQuery.FieldByName('SuperPin').AsString;
-    self.Rufnummer := TRufnummer.CreateFromId(self.SqlQuery.FieldByName('Rufnummer_id').AsInteger,
-      Connection);
+    self.Id           := self.SimKarteQuery.FieldByName('Id').AsInteger;
+    self.SerienNummer := self.SimKarteQuery.FieldByName('Seriennummer').AsString;
+    self.Pin          := self.SimKarteQuery.FieldByName('Pin').AsString;
+    self.SuperPin     := self.SimKarteQuery.FieldByName('SuperPin').AsString;
+    self.Rufnummer    := TRufnummer.CreateFromId(self.SimKarteQuery.FieldByName('Rufnummer_id')
+      .AsInteger, Connection);
+  end;
+end;
+
+procedure TSimKarte.IdErmitteln;
+begin
+  with self.SimKarteQuery, SQL do
+  begin
+    Clear;
+    Add('SELECT Id FROM SimKarte ORDER BY Id DESC LIMIT 1');
+  end;
+  self.SimKarteQuery.Open;
+  self.Id := self.SimKarteQuery.FieldByName('Id').AsInteger;
+  self.SimKarteQuery.Close;
+end;
+
+procedure TSimKarte.Loeschen;
+begin
+  if self.Id <> 0 then
+  begin
+    with self.SimKarteQuery, SQL do
+    begin
+      Clear;
+      Add('DELETE FROM SimKarte WHERE Id = :id');
+      ParamByName('id').Value := self.Id;
+    end;
+    self.SimKarteQuery.ExecSQL;
   end;
 end;
 
@@ -377,20 +423,39 @@ procedure TSimKarte.Speichern;
 begin
   if self.Id = 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.SimKarteQuery, SQL do
     begin
       Clear;
-      Add('INSERT INTO :tabelle (SerienNummer, Pin, SuperPin, Rufnummer_Id)');
+      Add('INSERT INTO SimKarte (SerienNummer, Pin, SuperPin, Rufnummer_Id)');
       Add('VALUES (:seriennr,:pin,:superpin,:rufnummer'')');
-      ParamByName('tabelle').Value   := self.TableName;
       ParamByName('seriennr').Value  := self.SerienNummer;
       ParamByName('pin').Value       := self.Pin;
       ParamByName('superpin').Value  := self.SuperPin;
       ParamByName('rufnummer').Value := self.Rufnummer.Id;
     end;
-    self.SqlQuery.ExecSQL;
+    self.SimKarteQuery.ExecSQL;
     self.IdErmitteln;
   end;
+end;
+
+{ TTelefonie }
+
+procedure TTelefonie.IdErmitteln;
+begin
+  with self.SqlQuery, SQL do
+  begin
+    Clear;
+    Add('SELECT Id FROM :table ORDER BY Id DESC LIMIT 1');
+    ParamByName('table').Value := self.TableName;
+  end;
+  self.SqlQuery.Open;
+  self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
+  self.SqlQuery.Close;
+end;
+
+procedure TTelefonie.Loeschen;
+begin
+
 end;
 
 end.
