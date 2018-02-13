@@ -1,0 +1,91 @@
+unit SuchenFrm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.Generics.Collections,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  Vcl.StdCtrls, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, Helpers;
+
+type
+  TSuchenForm = class(TForm)
+    SuchbegriffEdit: TEdit;
+    AuswahlFelderBox: TComboBox;
+    Button1: TButton;
+    Button2: TButton;
+    procedure FormShow(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+  private
+    FSuchEintraege: TList<TSuchEintrag>;
+    FTabellenName : string;
+    procedure ComboBoxFuellen();
+  public
+    SqlQuery: TFDQuery;
+    constructor Create(AOwner: Tcomponent; Tabelle: string; Suche: TList<TSuchEintrag>;
+        Connection: TFDConnection); overload;
+    property SuchEintraege: TList<TSuchEintrag> read FSuchEintraege write FSuchEintraege;
+    property TabellenName: string read FTabellenName write FTabellenName;
+    procedure FormVorbereiten();
+  end;
+
+type
+  TSuche = class
+  private
+    FSpalten : TStringList;
+    FErgebnis: integer;
+  public
+    property Spalte  : TStringList read FSpalten write FSpalten;
+    property Ergebnis: integer read FErgebnis write FErgebnis;
+    constructor Create(Spalten: TStringList);
+  end;
+
+var
+  SuchenForm: TSuchenForm;
+
+implementation
+
+{$R *.dfm}
+
+{ TSuchenForm }
+
+procedure TSuchenForm.ComboBoxFuellen;
+var
+  I: integer;
+begin
+  self.AuswahlFelderBox.Items.Add('- Alle Felder -');
+  for I := 0 to self.SuchEintraege.Count - 1 do
+  begin
+    self.AuswahlFelderBox.Items.Add(self.SuchEintraege[I].AnzeigeName);
+  end;
+end;
+
+constructor TSuchenForm.Create(AOwner: Tcomponent; Tabelle: string; Suche: TList<TSuchEintrag>;
+    Connection: TFDConnection);
+begin
+  inherited Create(AOwner);
+  self.TabellenName := Tabelle;
+  self.SuchEintraege := Suche;
+  self.SqlQuery := TFDQuery.Create(nil);
+  self.SqlQuery.Connection := Connection;
+end;
+
+procedure TSuchenForm.FormShow(Sender: TObject);
+begin
+  self.ComboBoxFuellen;
+end;
+
+procedure TSuchenForm.FormVorbereiten;
+begin
+
+end;
+
+{ TSuche }
+
+constructor TSuche.Create(Spalten: TStringList);
+begin
+
+end;
+
+end.

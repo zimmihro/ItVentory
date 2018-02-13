@@ -66,10 +66,11 @@ begin
   Eintrag.AnzeigeName := 'Identifikationsnummer';
   Suche := TList<TSucheintrag>.Create;
   Suche.Add(Eintrag);
-  SuchenForm := TSuchenForm.Create('Mitarbeiter', Suche, MainConnection);
-  Eintrag.SpaltenName := 'Id';
-  Eintrag.AnzeigeName := 'Identifikationsnummer';
-  SuchenForm.Show();
+  SuchenForm := TSuchenForm.Create(application, 'Benutzer', Suche, MainConnection);
+//  SuchenForm.SqlQuery.Connection := self.MainConnection;
+//  SuchenForm.SuchEintraege := Suche;
+//  SuchenForm.TabellenName := 'Mitarbeiter';
+  SuchenForm.Show;
 end;
 
 procedure TMainForm.Mitarbeiter1Click(Sender: TObject);

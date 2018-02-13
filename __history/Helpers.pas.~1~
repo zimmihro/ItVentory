@@ -2,11 +2,15 @@ unit Helpers;
 
 interface
 
-uses IdHashMessageDigest, idHash, VCL.Forms;
+uses IdHashMessageDigest, idHash;
 
-type TSuchEintrag = record
+type SuchEintrag = record
   SpaltenName : string;
   AnzeigeName : string;
+end;
+
+type Suche = class
+
 end;
 
 function getMD5Hash(input: string): string;

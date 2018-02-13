@@ -33,7 +33,7 @@ var
 
 implementation
 
-uses helpers, LoginFrm, SuchenFrm, StamMitarbeiterfrm, classesTelefonie;
+uses helpers, LoginFrm, StamMitarbeiterfrm, classesTelefonie;
 
 {$R *.dfm}
 
@@ -57,19 +57,14 @@ end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 var
-  Eintrag   : TSucheintrag;
-  Suche     : TList<TSucheintrag>;
-  SuchenForm: TSuchenForm;
+  Eintrag: TSucheintrag;
+  Suche  : TList<TSucheintrag>;
 begin
+  self.MainConnection.Params.Database := ExtractFilePath(ParamStr(0)) + '\Database\ItVenory.db';
+  self.MainConnection.Connected := true;
   //BenutzerAnmelden;
-  Eintrag.SpaltenName := 'Id';
-  Eintrag.AnzeigeName := 'Identifikationsnummer';
   Suche := TList<TSucheintrag>.Create;
-  Suche.Add(Eintrag);
-  SuchenForm := TSuchenForm.Create('Mitarbeiter', Suche, MainConnection);
-  Eintrag.SpaltenName := 'Id';
-  Eintrag.AnzeigeName := 'Identifikationsnummer';
-  SuchenForm.Show();
+
 end;
 
 procedure TMainForm.Mitarbeiter1Click(Sender: TObject);

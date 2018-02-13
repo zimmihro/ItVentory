@@ -57,19 +57,18 @@ end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 var
-  Eintrag   : TSucheintrag;
-  Suche     : TList<TSucheintrag>;
-  SuchenForm: TSuchenForm;
+  Eintrag: TSucheintrag;
+  Suche  : TList<TSucheintrag>;
+  SuchenForm : TSuchenForm;
 begin
+  self.MainConnection.Params.Database := ExtractFilePath(ParamStr(0)) + '\Database\ItVenory.db';
+  self.MainConnection.Connected := true;
   //BenutzerAnmelden;
   Eintrag.SpaltenName := 'Id';
   Eintrag.AnzeigeName := 'Identifikationsnummer';
   Suche := TList<TSucheintrag>.Create;
-  Suche.Add(Eintrag);
-  SuchenForm := TSuchenForm.Create('Mitarbeiter', Suche, MainConnection);
-  Eintrag.SpaltenName := 'Id';
-  Eintrag.AnzeigeName := 'Identifikationsnummer';
-  SuchenForm.Show();
+  suche.Add(Eintrag);
+
 end;
 
 procedure TMainForm.Mitarbeiter1Click(Sender: TObject);

@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, System.UItypes,
-  System.Generics.Collections, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs, FireDAC.VCLUI.Wait, Data.DB,
@@ -33,7 +33,7 @@ var
 
 implementation
 
-uses helpers, LoginFrm, SuchenFrm, StamMitarbeiterfrm, classesTelefonie;
+uses helpers, LoginFrm, StamMitarbeiterfrm, classesTelefonie;
 
 {$R *.dfm}
 
@@ -57,26 +57,25 @@ end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 var
-  Eintrag   : TSucheintrag;
-  Suche     : TList<TSucheintrag>;
-  SuchenForm: TSuchenForm;
+  sim : TSimKarte;
+  I: Integer;
 begin
+  self.MainConnection.Params.Database := ExtractFilePath(ParamStr(0)) + '\Database\ItVenory.db';
+  self.MainConnection.Connected := true;
   //BenutzerAnmelden;
-  Eintrag.SpaltenName := 'Id';
-  Eintrag.AnzeigeName := 'Identifikationsnummer';
-  Suche := TList<TSucheintrag>.Create;
-  Suche.Add(Eintrag);
-  SuchenForm := TSuchenForm.Create('Mitarbeiter', Suche, MainConnection);
-  Eintrag.SpaltenName := 'Id';
-  Eintrag.AnzeigeName := 'Identifikationsnummer';
-  SuchenForm.Show();
+  sim := TSimKarte.CreateFromId(1, MainConnection);
+  sim.Free;
+  self.FDQuery1.Open();
+  for I := 0 to self.FDQuery1.FieldList.Count-1 do
+  MessageDlg(self.FDQuery1.Fields[i].DisplayName , mtError, [mbOk], 0);
+
 end;
 
 procedure TMainForm.Mitarbeiter1Click(Sender: TObject);
 var
-  MitarbeiterForm: TStamMitarbeiterForm;
+  MitarbeiterForm : TStamMitarbeiterForm;
 begin
-  MitarbeiterForm := TStamMitarbeiterForm.Create(Application);
+  MitarbeiterForm := TStammitarbeiterForm.Create(application);
   MitarbeiterForm.ShowModal;
 end;
 

@@ -9,18 +9,19 @@ uses System.SysUtils, System.StrUtils, Vcl.Dialogs, System.UITypes, classesPerso
 
 type
   TGegenstand = class
+  begin
   private
-    SqlQuery    : TFDQuery;
-    FId         : integer;
-    FBezeichnung: string;
-    procedure IdErmitteln();
+    SqlQuery : TFDQuery;
+    FId : integer;
+    FBezeichnung:string;
+    procedure IdErmiteln();
   public
-    property Id         : integer read FId write FId;
-    property Bezeichnung: string read FBezeichnung write FBezeichnung;
+    property Id : integer read FId write FId;
+    property Bezeichnung read FBezeichnung write FBezeichnung;
     procedure Loeschen();
 
-  const
-    TABLE_NAME: string = '';
+  const 
+    TABLE_NAME : string = '';
   end;
 
 type
@@ -32,9 +33,9 @@ type
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
     procedure Aktualisieren();
-
+  
   const
-    TABLE_NAME: string = 'Hersteller';
+    TABLE_NAME : string = 'Hersteller';
   end;
 
 type
@@ -45,20 +46,26 @@ type
     constructor Create(Bezeichnung: string; Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
+    procedure Loeschen();
     procedure Aktualisieren();
 
   const
-    TABLE_NAME: string = 'ArbeitsmittelKlasse';
+    TABLE_NAME : string = 'ArbeitsmittelKlasse';
   end;
 
 type
-  TArbeitsmittelTyp = class(THersteller)
+  TArbeitsmittelTyp = class
   private
+    TypenQuery          : TFDQuery;
+    FId                 : integer;
+    FBezeichnung        : string;
     FHersteller         : THersteller;
     FArbeistmittelKlasse: TArbeitsmittelKlasse;
     FHatSim             : boolean;
     procedure IdErmitteln();
   public
+    property Id                 : integer read FId write FId;
+    property Bezeichnung        : string read FBezeichnung write FBezeichnung;
     property Hersteller         : THersteller read FHersteller write FHersteller;
     property ArbeitsmittelKlasse: TArbeitsmittelKlasse read FArbeistmittelKlasse write FArbeistmittelKlasse;
     property HatSim             : boolean read FHatSim write FHatSim;
@@ -66,21 +73,25 @@ type
         HatSim: boolean; Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
+    procedure Loeschen();
     procedure Aktualisieren();
-
-  const
-    TABLE_NAME: string = 'ArbeitsmittelTyp';
   end;
 
 type
-  TArbeitsmittel = class(THersteller)
+  TArbeitsmittel = class
   private
-    FArbeitsmittelTyp: TArbeitsmittelTyp;
-    FImei            : Variant;
-    FSerienNummer    : Variant;
-    FSimKarte        : TSimKarte;
+    ArbeitsmittelQuery: TFDQuery;
+    FId               : integer;
+    FBezeichnung      : string;
+    FArbeitsmittelTyp : TArbeitsmittelTyp;
+    FImei             : Variant;
+    FSerienNummer     : Variant;
+    FSimKarte         : TSimKarte;
     procedure setImei(Value: Variant);
+    procedure IdErmitteln();
   public
+    property Id              : integer read FId write FId;
+    property Bezeichnung     : string read FBezeichnung write FBezeichnung;
     property ArbeitsmittelTyp: TArbeitsmittelTyp read FArbeitsmittelTyp write FArbeitsmittelTyp;
     property Imei            : Variant read FImei write setImei;
     property SerienNummer    : Variant read FSerienNummer write FSerienNummer;
@@ -89,42 +100,11 @@ type
         Connection: TFDConnection; sim: TSimKarte = nil);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
+    procedure Loeschen();
     procedure Aktualisieren();
-
-  const
-    TABLE_NAME: string = 'Arbeitsmittel';
   end;
 
 implementation
-
-{ TGegenstand }
-
-procedure TGegenstand.IdErmitteln;
-begin
-  with self.SqlQuery, SQL do
-  begin
-    Clear;
-    Add('SELECT Id FROM '+ self.TABLE_NAME +' ORDER BY Id DESC LIMIT 1');
-  end;
-  self.SqlQuery.Open;
-  if self.SqlQuery.RecordCount = 1 then
-    self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
-  self.SqlQuery.Close
-end;
-
-procedure TGegenstand.Loeschen;
-begin
-  if self.Id <> 0 then
-  begin
-    with self.SqlQuery, SQL do
-    begin
-      Clear;
-      Add('DELETE FROM '+ self.TABLE_NAME +' WHERE Id = :id');
-      ParamByName('id').Value := self.Id;
-    end;
-    self.SqlQuery.ExecSQL;
-  end;
-end;
 
 { THersteller }
 
@@ -132,16 +112,16 @@ procedure THersteller.Aktualisieren;
 begin
   if self.Id <> 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.HerstellerQuery, SQL do
     begin
       Clear;
-      Add('UPDATE '+ self.TABLE_NAME);
+      Add('UPDATE Hersteller');
       Add('SET Bezeichnung = :name');
       Add('WHERE Id = :id');
       ParamByName('name').Value := self.Bezeichnung;
       ParamByName('id').Value := self.Id;
     end;
-    self.SqlQuery.ExecSQL;
+    self.HerstellerQuery.ExecSQL;
   end;
 end;
 
@@ -149,41 +129,68 @@ constructor THersteller.Create(Bezeichnung: string; Connection: TFDConnection);
 begin
   self.Id := 0;
   self.Bezeichnung := Bezeichnung;
-  self.SqlQuery := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
+  self.HerstellerQuery := TFDQuery.Create(nil);
+  self.HerstellerQuery.Connection := Connection;
 end;
 
 constructor THersteller.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
-  self.SqlQuery := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
-  with self.SqlQuery, SQL do
+  self.HerstellerQuery := TFDQuery.Create(nil);
+  self.HerstellerQuery.Connection := Connection;
+  with self.HerstellerQuery, SQL do
   begin
     Clear;
-    Add('SELECT * FROM '+ self.TABLE_NAME +' WHERE Id = :id');
+    Add('SELECT * FROM Hersteller WHERE Id = :id');
     ParamByName('id').Value := Id;
     Open;
   end;
-  if self.SqlQuery.RecordCount = 1 then
+  if self.HerstellerQuery.RecordCount = 1 then
   begin
-    self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
-    self.Bezeichnung := self.SqlQuery.FieldByName('Bezeichnung').AsString;
+    self.Id := self.HerstellerQuery.FieldByName('Id').AsInteger;
+    self.Bezeichnung := self.HerstellerQuery.FieldByName('Bezeichnung').AsString;
   end;
-  self.SqlQuery.Close;
+  self.HerstellerQuery.Close;
+end;
+
+procedure THersteller.IdErmitteln;
+begin
+  with self.HerstellerQuery, SQL do
+  begin
+    Clear;
+    Add('SELECT Id FROM Hersteller ORDER BY Id DESC LIMIT 1');
+  end;
+  self.HerstellerQuery.Open;
+  if self.HerstellerQuery.RecordCount = 1 then
+    self.Id := self.HerstellerQuery.FieldByName('Id').AsInteger;
+  self.HerstellerQuery.Close
+end;
+
+procedure THersteller.Loeschen;
+begin
+  if self.Id <> 0 then
+  begin
+    with self.HerstellerQuery, SQL do
+    begin
+      Clear;
+      Add('DELETE FROM Hersteller WHERE Id = :id');
+      ParamByName('id').Value := self.Id;
+    end;
+    self.HerstellerQuery.ExecSQL;
+  end;
 end;
 
 procedure THersteller.Speichern;
 begin
   if self.Id = 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.HerstellerQuery, SQL do
     begin
       Clear;
-      Add('INSERT INTO '+ self.TABLE_NAME +' (Bezeichnung)');
+      Add('INSERT INTO Hersteller (Bezeichnung)');
       Add('VALUES (:name)');
       ParamByName('name').Value := self.Bezeichnung;
     end;
-    self.SqlQuery.ExecSQL;
+    self.HerstellerQuery.ExecSQL;
     self.IdErmitteln;
   end;
 end;
@@ -194,16 +201,16 @@ procedure TArbeitsmittelKlasse.Aktualisieren;
 begin
   if self.Id <> 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.KlassenQuery, SQL do
     begin
       Clear;
-      Add('UPDATE '+ self.TABLE_NAME);
+      Add('UPDATE ArbeitsmittelKlasse');
       Add('SET Bezeichnung = :name');
       Add('WHERE Id = :id');
       ParamByName('name').Value := self.Bezeichnung;
       ParamByName('id').Value := self.Id;
     end;
-    self.SqlQuery.ExecSQL;
+    self.KlassenQuery.ExecSQL;
   end;
 end;
 
@@ -211,54 +218,68 @@ constructor TArbeitsmittelKlasse.Create(Bezeichnung: string; Connection: TFDConn
 begin
   self.Id := 0;
   self.Bezeichnung := Bezeichnung;
-  self.SqlQuery := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection
+  self.KlassenQuery := TFDQuery.Create(nil);
+  self.KlassenQuery.Connection := Connection
 end;
 
 constructor TArbeitsmittelKlasse.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
-  self.SqlQuery := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
-  with self.SqlQuery, SQL do
+  self.KlassenQuery := TFDQuery.Create(nil);
+  self.KlassenQuery.Connection := Connection;
+  with self.KlassenQuery, SQL do
   begin
     Clear;
-    Add('SELECT * FROM '+ self.TABLE_NAME +' WHERE Id = :id');
+    Add('SELECT * FROM ArbteitsmittelKlasse WHERE Id = :id');
     ParamByName('id').Value := Id;
   end;
-  self.SqlQuery.Open();
-  if self.SqlQuery.RecordCount = 1 then
+  self.KlassenQuery.Open();
+  if self.KlassenQuery.RecordCount = 1 then
   begin
-    self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
-    self.Bezeichnung := self.SqlQuery.FieldByName('Bezeichnung').AsString;
+    self.Id := self.KlassenQuery.FieldByName('Id').AsInteger;
+    self.Bezeichnung := self.KlassenQuery.FieldByName('Bezeichnung').AsString;
   end;
-  self.SqlQuery.Close;
+  self.KlassenQuery.Close;
 end;
 
 procedure TArbeitsmittelKlasse.IdErmitteln;
 begin
-  with self.SqlQuery, SQL do
+  with self.KlassenQuery, SQL do
   begin
     Clear;
-    Add('SELECT Id FROM '+ self.TABLE_NAME +' ORDER BY Id DESC LIMIT 1');
+    Add('SELECT Id FROM ArbeitsmittelKlasse ORDER BY Id DESC LIMIT 1');
   end;
-  self.SqlQuery.Open;
-  if self.SqlQuery.RecordCount = 1 then
-    self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
-  self.SqlQuery.Close
+  self.KlassenQuery.Open;
+  if self.KlassenQuery.RecordCount = 1 then
+    self.Id := self.KlassenQuery.FieldByName('Id').AsInteger;
+  self.KlassenQuery.Close
+end;
+
+procedure TArbeitsmittelKlasse.Loeschen;
+begin
+  if self.Id <> 0 then
+  begin
+    with self.KlassenQuery, SQL do
+    begin
+      Clear;
+      Add('DELETE FROM ArbeitsmittelKlasse WHERE Id = :id');
+      ParamByName('id').Value := self.Id;
+    end;
+    self.KlassenQuery.ExecSQL;
+  end;
 end;
 
 procedure TArbeitsmittelKlasse.Speichern;
 begin
   if self.Id = 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.KlassenQuery, SQL do
     begin
       Clear;
-      Add('INSERT INTO '+ self.TABLE_NAME +' (Bezeichnung)');
+      Add('INSERT INTO ArbeitsmittelKlasse (Bezeichnung)');
       Add('VALUES (:name)');
       ParamByName('name').Value := self.Bezeichnung;
     end;
-    self.SqlQuery.ExecSQL;
+    self.KlassenQuery.ExecSQL;
     self.IdErmitteln;
   end;
 end;
@@ -269,10 +290,10 @@ procedure TArbeitsmittelTyp.Aktualisieren;
 begin
   if self.Id <> 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.TypenQuery, SQL do
     begin
       Clear;
-      Add('UPDATE '+ self.TABLE_NAME);
+      Add('UPDATE ArbeitsmittelTyp');
       Add('SET Bezeichnung = :name,');
       Add('Hersteller = :hersteller,');
       Add('ArbeitsmittelKlasse = :klasse,');
@@ -284,7 +305,7 @@ begin
       ParamByName('sim').Value := self.HatSim;
       ParamByName('id').Value := self.Id;
     end;
-    self.SqlQuery.ExecSQL;
+    self.TypenQuery.ExecSQL;
   end;
 end;
 
@@ -296,8 +317,8 @@ begin
   self.Hersteller := Hersteller;
   self.ArbeitsmittelKlasse := klasse;
   self.HatSim := HatSim;
-  self.SqlQuery := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
+  self.TypenQuery := TFDQuery.Create(nil);
+  self.TypenQuery.Connection := Connection;
 end;
 
 constructor TArbeitsmittelTyp.CreateFromId(Id: integer; Connection: TFDConnection);
@@ -305,56 +326,70 @@ var
   Hersteller_Id: integer;
   Klassen_Id   : integer;
 begin
-  self.SqlQuery := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
-  with self.SqlQuery, SQL do
+  self.TypenQuery := TFDQuery.Create(nil);
+  self.TypenQuery.Connection := Connection;
+  with self.TypenQuery, SQL do
   begin
     Clear;
-    Add('SELECT * FROM '+ self.TABLE_NAME +' WHERE Id = :id');
+    Add('SELECT * FROM ArbeitsmittelTyp WHERE Id = :id');
     ParamByName('id').Value := Id;
     Open;
   end;
-  if self.SqlQuery.RecordCount = 1 then
+  if self.TypenQuery.RecordCount = 1 then
   begin
-    Hersteller_Id := self.SqlQuery.FieldByName('Hersteller_Id').AsInteger;
-    Klassen_Id := self.SqlQuery.FieldByName('ArbeitsmittelKlasse_Id').AsInteger;
-    self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
-    self.Bezeichnung := self.SqlQuery.FieldByName('Bezeichnung').AsString;
+    Hersteller_Id := self.TypenQuery.FieldByName('Hersteller_Id').AsInteger;
+    Klassen_Id := self.TypenQuery.FieldByName('ArbeitsmittelKlasse_Id').AsInteger;
+    self.Id := self.TypenQuery.FieldByName('Id').AsInteger;
+    self.Bezeichnung := self.TypenQuery.FieldByName('Bezeichnung').AsString;
     self.Hersteller := THersteller.CreateFromId(Hersteller_Id, Connection);
     self.ArbeitsmittelKlasse := TArbeitsmittelKlasse.CreateFromId(Klassen_Id, Connection);
-    self.HatSim := self.SqlQuery.FieldByName('HatSim').AsBoolean;
+    self.HatSim := self.TypenQuery.FieldByName('HatSim').AsBoolean;
   end;
-  self.SqlQuery.Close;
+  self.TypenQuery.Close;
 end;
 
 procedure TArbeitsmittelTyp.IdErmitteln;
 begin
-  with self.SqlQuery, SQL do
+  with self.TypenQuery, SQL do
   begin
     Clear;
-    Add('SELECT Id FROM '+ self.TABLE_NAME +' ORDER BY Id DESC LIMIT 1');
+    Add('SELECT Id FROM ArbeitsmittelTyp ORDER BY Id DESC LIMIT 1');
   end;
-  self.SqlQuery.Open;
-  if self.SqlQuery.RecordCount = 1 then
-    self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
-  self.SqlQuery.Close
+  self.TypenQuery.Open;
+  if self.TypenQuery.RecordCount = 1 then
+    self.Id := self.TypenQuery.FieldByName('Id').AsInteger;
+  self.TypenQuery.Close
+end;
+
+procedure TArbeitsmittelTyp.Loeschen;
+begin
+  if self.Id <> 0 then
+  begin
+    with self.TypenQuery, SQL do
+    begin
+      Clear;
+      Add('DELETE FROM Arbeitsmitteltyp WHERE Id = :id');
+      ParamByName('id').Value := self.Id;
+    end;
+    self.TypenQuery.ExecSQL;
+  end;
 end;
 
 procedure TArbeitsmittelTyp.Speichern;
 begin
   if self.Id = 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.TypenQuery, SQL do
     begin
       Clear;
-      Add('INSERT INTO '+ self.TABLE_NAME +' (Bezeichnung, Hersteller_id, ArbeitsmittelKlasse_Id, HatSim)');
+      Add('INSERT INTO ArbeitsmittelTyp (Bezeichnung, Hersteller_id, ArbeitsmittelKlasse_Id, HatSim)');
       Add('VALUES(:name, :hersteller, :klasse, :sim)');
       ParamByName('name').Value := self.Bezeichnung;
       ParamByName('hersteller').Value := self.Hersteller.Id;
       ParamByName('klasse').Value := self.ArbeitsmittelKlasse.Id;
       ParamByName('sim').Value := self.HatSim;
     end;
-    self.SqlQuery.ExecSQL;
+    self.TypenQuery.ExecSQL;
     self.IdErmitteln;
   end;
 
@@ -366,10 +401,10 @@ procedure TArbeitsmittel.Aktualisieren;
 begin
   if self.Id <> 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.ArbeitsmittelQuery, SQL do
     begin
       Clear;
-      Add('UPDATE '+ self.TABLE_NAME);
+      Add('UPDATE Arbeitsmittel');
       Add('SET Bezeichnung = :name,');
       Add('ArbeitsmittelTyp_id = :typ,');
       Add('IMEI = :imei,');
@@ -386,7 +421,7 @@ begin
         ParamByName('sim').Clear;
       ParamByName('id').Value := self.Id;
     end;
-    self.SqlQuery.ExecSQL;
+    self.ArbeitsmittelQuery.ExecSQL;
   end;
 end;
 
@@ -399,8 +434,8 @@ begin
   self.Imei := Imei;
   self.SerienNummer := serienNr;
   self.SimKarte := sim;
-  self.SqlQuery := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
+  self.ArbeitsmittelQuery := TFDQuery.Create(nil);
+  self.ArbeitsmittelQuery.Connection := Connection;
 end;
 
 constructor TArbeitsmittel.CreateFromId(Id: integer; Connection: TFDConnection);
@@ -408,30 +443,57 @@ var
   Typen_Id: integer;
   Sim_Id  : integer;
 begin
-  self.SqlQuery := TFDQuery.Create(nil);
-  self.SqlQuery.Connection := Connection;
-  with self.SqlQuery, SQL do
+  self.ArbeitsmittelQuery := TFDQuery.Create(nil);
+  self.ArbeitsmittelQuery.Connection := Connection;
+  with self.ArbeitsmittelQuery, SQL do
   begin
     Clear;
-    Add('SELECT * FROM '+ self.TABLE_NAME +' WHERE Id = :id');
+    Add('SELECT * FROM Arbeitsmittel WHERE Id = :id');
     ParamByName('id').Value := Id;
   end;
-  self.SqlQuery.Open();
-  if self.SqlQuery.RecordCount = 1 then
+  self.ArbeitsmittelQuery.Open();
+  if self.ArbeitsmittelQuery.RecordCount = 1 then
   begin
-    self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
-    self.Bezeichnung := self.SqlQuery.FieldByName('Bezeichnung').AsString;
-    Typen_Id := self.SqlQuery.FieldByName('ArbeitsmittelTyp_Id').AsInteger;
+    self.Id := self.ArbeitsmittelQuery.FieldByName('Id').AsInteger;
+    self.Bezeichnung := self.ArbeitsmittelQuery.FieldByName('Bezeichnung').AsString;
+    Typen_Id := self.ArbeitsmittelQuery.FieldByName('ArbeitsmittelTyp_Id').AsInteger;
     self.ArbeitsmittelTyp := TArbeitsmittelTyp.CreateFromId(Typen_Id, Connection);
-    self.Imei := self.SqlQuery.FieldByName('IMEI').AsVariant;
-    self.SerienNummer := self.SqlQuery.FieldByName('Seriennummer').AsVariant;
+    self.Imei := self.ArbeitsmittelQuery.FieldByName('IMEI').AsVariant;
+    self.SerienNummer := self.ArbeitsmittelQuery.FieldByName('Seriennummer').AsVariant;
     if self.ArbeitsmittelTyp.HatSim then
     begin
-      Sim_Id := self.SqlQuery.FieldByName('Sim_Id').AsVariant;
+      Sim_Id := self.ArbeitsmittelQuery.FieldByName('Sim_Id').AsVariant;
       self.SimKarte := TSimKarte.CreateFromId(Sim_Id, Connection);
     end;
   end;
-  self.SqlQuery.Close;
+  self.ArbeitsmittelQuery.Close;
+end;
+
+procedure TArbeitsmittel.IdErmitteln;
+begin
+  with self.ArbeitsmittelQuery, SQL do
+  begin
+    Clear;
+    Add('SELECT Id FROM Arbeitsmittel ORDER BY Id DESC LIMIT 1');
+  end;
+  self.ArbeitsmittelQuery.Open();
+  if self.ArbeitsmittelQuery.RecordCount = 1 then
+    self.Id := self.ArbeitsmittelQuery.FieldByName('Id').AsInteger;
+  self.ArbeitsmittelQuery.Close;
+end;
+
+procedure TArbeitsmittel.Loeschen;
+begin
+  if self.Id <> 0 then
+  begin
+    with self.ArbeitsmittelQuery, SQL do
+    begin
+      Clear;
+      Add('DELETE FROM Arbeitsmittel WHERE Id = :id');
+      ParamByName('id').Value := self.Id;
+    end;
+    self.ArbeitsmittelQuery.ExecSQL
+  end;
 end;
 
 procedure TArbeitsmittel.setImei(Value: Variant);
@@ -451,10 +513,10 @@ procedure TArbeitsmittel.Speichern;
 begin
   if self.Id = 0 then
   begin
-    with self.SqlQuery, SQL do
+    with self.ArbeitsmittelQuery, SQL do
     begin
       Clear;
-      Add('INSERT INTO '+ self.TABLE_NAME +' (Bezeichnung, ArbeitsmittelTyp_Id, IMEI, Seriennummer, Sim_Id)');
+      Add('INSERT INTO Arbeitsmittel (Bezeichnung, ArbeitsmittelTyp_Id, IMEI, Seriennummer, Sim_Id)');
       Add('VALUES (:name, :typ, :imei, :serial, :sim)');
       ParamByName('name').Value := self.Bezeichnung;
       ParamByName('typ').Value := self.ArbeitsmittelTyp.Id;
@@ -465,7 +527,7 @@ begin
       else
         ParamByName('sim').Clear;
     end;
-    self.SqlQuery.ExecSQL;
+    self.ArbeitsmittelQuery.ExecSQL;
     self.IdErmitteln;
   end;
 end;
