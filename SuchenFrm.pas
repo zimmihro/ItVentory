@@ -17,6 +17,7 @@ type
     AbbrechenButton: TButton;
     procedure FormShow(Sender: TObject);
     procedure SuchenButtonClick(Sender: TObject);
+    procedure SuchbegriffEditKeyPress(Sender: TObject; var Key: Char);
   private
     SqlQuery      : TFDQuery;
     FSuchEintraege: TList<TSuchEintrag>;
@@ -68,6 +69,15 @@ begin
   self.ComboBoxFuellen;
 end;
 
+procedure TSuchenForm.SuchbegriffEditKeyPress(Sender: TObject; var Key: Char);
+begin
+  If Key = #13 then
+    begin
+      SuchenButton.Click;
+      Key := #0;
+    end;
+end;
+
 procedure TSuchenForm.SuchenButtonClick(Sender: TObject);
 begin
   if SuchbegriffEdit.Text <> '' then
@@ -88,8 +98,13 @@ begin
       add('OR  '+ self.SuchEintraege[i].SpaltenName + ' = ' + QuotedStr(self.SuchbegriffEdit.Text));
     end;
   end;
-  if self.SqlQuery.RecordCount = 1 then
+  self.SqlQuery.Open();
+  if self.SqlQuery.RecordCount = 1 then begin
     self.Ergebnis:= self.SqlQuery.FieldByName('Id').AsInteger;
+    ModalResult := mrOk;
+    self.CloseModal;
+  end;
+
 end;
 
 

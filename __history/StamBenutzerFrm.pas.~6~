@@ -1,0 +1,72 @@
+unit StamBenutzerFrm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  System.Generics.Collections, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, classesPersonen, MainFrm, Helpers, SuchenFrm, XStammdatenFrm;
+
+type
+  TStamBenutzerForm = class(TXStammdatenForm)
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    BenutzerGrid: TDBGrid;
+    PasswortAendernButton: TButton;
+    VornameEdit: TEdit;
+    NameEdit: TEdit;
+    BenutzerSource: TDataSource;
+    BenutzerTable: TFDTable;
+    procedure AnzeigeFuellen;
+    procedure AnzeigeUmschalten(Status: TFormStatus); reintroduce;
+    procedure NeuButtonClick(Sender: TObject);
+  private
+    Benutzer: TBenutzer;
+    { Private-Deklarationen }
+  public
+    { Public-Deklarationen }
+  end;
+
+var
+  StamBenutzerForm: TStamBenutzerForm;
+
+implementation
+
+{$R *.dfm}
+
+{ TStamBenutzerForm }
+
+procedure TStamBenutzerForm.AnzeigeFuellen;
+begin
+  if Assigned(Benutzer) then
+  begin
+    self.NameEdit.Text := Benutzer.Name;
+    self.VornameEdit.Text := Benutzer.Vorname;
+  end
+  else
+  begin
+    self.NameEdit.Clear;
+    self.VornameEdit.Clear
+  end;
+end;
+
+procedure TStamBenutzerForm.AnzeigeUmschalten(Status: TFormStatus);
+begin
+  inherited;
+  self.NameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.VornameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.AnzeigeFuellen;
+end;
+
+procedure TStamBenutzerForm.NeuButtonClick(Sender: TObject);
+begin
+  self.AnzeigeUmschalten(fsNeu);
+
+end;
+
+end.

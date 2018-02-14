@@ -1,0 +1,32 @@
+unit XStammdatenFrm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Helpers;
+
+type
+  TXStammdatenForm = class(TForm)
+    NeuButton: TButton;
+    BearbeitenButton: TButton;
+    SpeichernButton: TButton;
+    AbbrechenButton: TButton;
+    LoeschenButton: TButton;
+    SuchenButton: TButton;
+    procedure AnzeigeFuellen;
+    procedure AnzeigeUmschalten(Status: TFormStatus);
+  private
+    { Private-Deklarationen }
+  public
+    { Public-Deklarationen }
+  end;
+
+var
+  XStammdatenForm: TXStammdatenForm;
+
+implementation
+
+{$R *.dfm}
+
+end.

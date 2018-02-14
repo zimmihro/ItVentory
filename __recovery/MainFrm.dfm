@@ -15,11 +15,19 @@ object MainForm: TMainForm
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
+  object Label1: TLabel
+    Left = 384
+    Top = 136
+    Width = 31
+    Height = 13
+    Caption = 'Label1'
+  end
   object MainConnection: TFDConnection
     Params.Strings = (
       'Database=D:\Projekte\ItVentory\Win32\Debug\Database\ItVentory.db'
       'DriverID=SQLite'
       'LockingMode=Normal')
+    Connected = True
     LoginPrompt = False
     Left = 560
     Top = 272

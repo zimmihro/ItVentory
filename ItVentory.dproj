@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{57EA2C4E-DAD0-4312-93BC-A2B1B0B1EB68}</ProjectGuid>
-        <ProjectVersion>18.2</ProjectVersion>
+        <ProjectVersion>18.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <MainSource>ItVentory.dpr</MainSource>
         <Base>True</Base>
@@ -108,10 +108,6 @@
             <Form>AnmeldeForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="StamMitarbeiterFrm.pas">
-            <Form>StamMitarbeiterForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="StamBenutzerFrm.pas">
             <Form>StamBenutzerForm</Form>
             <FormType>dfm</FormType>
@@ -124,6 +120,18 @@
         <DCCReference Include="classesPersonen.pas"/>
         <DCCReference Include="classesTelefonie.pas"/>
         <DCCReference Include="classesGeraeteAusgabe.pas"/>
+        <DCCReference Include="SuchenFrm.pas">
+            <Form>SuchenForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="XStammdatenFrm.pas">
+            <Form>XStammdatenForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="StamMitarbeiterFrm.pas">
+            <Form>StamMitarbeiterForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

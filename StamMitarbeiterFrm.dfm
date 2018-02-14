@@ -1,138 +1,106 @@
-object StamMitarbeiterForm: TStamMitarbeiterForm
-  Left = 0
-  Top = 0
-  BorderIcons = [biSystemMenu, biMinimize]
-  BorderStyle = bsSingle
+inherited StamMitarbeiterForm: TStamMitarbeiterForm
   Caption = 'StamMitarbeiterForm'
-  ClientHeight = 274
-  ClientWidth = 549
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
-  OldCreateOrder = False
-  OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
-    Left = 308
-    Top = 8
-    Width = 46
-    Height = 13
-    Caption = 'Vorname:'
-  end
-  object Label2: TLabel
-    Left = 308
+  object Label2: TLabel [0]
+    Left = 12
     Top = 49
     Width = 54
     Height = 13
     Caption = 'Nachname:'
   end
-  object NameEdit: TDBEdit
-    Left = 312
-    Top = 65
-    Width = 121
-    Height = 21
-    DataField = 'Name'
-    DataSource = MitarbeiterSource
-    TabOrder = 1
+  object Label1: TLabel [1]
+    Left = 12
+    Top = 8
+    Width = 46
+    Height = 13
+    Caption = 'Vorname:'
   end
-  object VornameEdit: TDBEdit
-    Left = 312
-    Top = 22
-    Width = 121
-    Height = 21
-    DataField = 'Vorname'
-    DataSource = MitarbeiterSource
-    TabOrder = 0
-  end
-  object NeuButton: TButton
-    Left = 447
-    Top = 9
-    Width = 75
-    Height = 25
-    Caption = 'Neu'
-    TabOrder = 2
+  inherited NeuButton: TButton
     OnClick = NeuButtonClick
   end
-  object BearbeitenButton: TButton
-    Left = 447
-    Top = 40
-    Width = 75
-    Height = 25
-    Caption = 'Bearbeiten'
-    TabOrder = 3
+  inherited BearbeitenButton: TButton
     OnClick = BearbeitenButtonClick
   end
-  object SpeichernButton: TButton
-    Left = 447
-    Top = 71
-    Width = 75
-    Height = 25
-    Caption = 'Speichern'
-    TabOrder = 4
+  inherited SpeichernButton: TButton
     OnClick = SpeichernButtonClick
   end
-  object AbbrechenButton: TButton
-    Left = 447
-    Top = 102
-    Width = 75
-    Height = 25
-    Caption = 'Abbrechen'
-    TabOrder = 5
+  inherited AbbrechenButton: TButton
     OnClick = AbbrechenButtonClick
   end
-  object LoeschenButton: TButton
-    Left = 447
-    Top = 133
-    Width = 75
-    Height = 25
-    Caption = 'L'#246'schen'
-    TabOrder = 6
+  inherited LoeschenButton: TButton
     OnClick = LoeschenButtonClick
   end
-  object MitarbeiterGrid: TDBGrid
-    Left = 8
-    Top = 8
-    Width = 279
-    Height = 252
-    DataSource = MitarbeiterSource
-    Options = [dgEditing, dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+  inherited SuchenButton: TButton
+    OnClick = SuchenButtonClick
+  end
+  object Button1: TButton
+    Left = 255
+    Top = 152
+    Width = 75
+    Height = 25
+    Caption = 'Button1'
+    TabOrder = 6
+    OnClick = Button1Click
+  end
+  object DBGrid1: TDBGrid
+    Left = 154
+    Top = 26
+    Width = 320
+    Height = 120
+    DataSource = DataSource1
     TabOrder = 7
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
-    OnCellClick = MitarbeiterGridCellClick
     Columns = <
       item
         Expanded = False
-        FieldName = 'Vorname'
-        Width = 111
+        FieldName = 'Id'
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'Name'
-        Width = 151
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'Vorname'
         Visible = True
       end>
   end
-  object MitarbeiterSource: TDataSource
-    DataSet = MitarbeiterTable
-    Left = 488
-    Top = 163
+  object NameEdit: TEdit
+    Left = 16
+    Top = 68
+    Width = 121
+    Height = 21
+    TabOrder = 8
+    Text = 'NameEdit'
   end
-  object MitarbeiterTable: TFDTable
+  object VornameEdit: TEdit
+    Left = 16
+    Top = 24
+    Width = 121
+    Height = 21
+    TabOrder = 9
+    Text = 'VornameEdit'
+  end
+  object DataSource1: TDataSource
+    DataSet = FDTable1
+    Left = 200
+    Top = 152
+  end
+  object FDTable1: TFDTable
+    Active = True
     IndexFieldNames = 'Id'
     Connection = MainForm.MainConnection
     UpdateOptions.UpdateTableName = 'Mitarbeiter'
     TableName = 'Mitarbeiter'
-    Left = 448
-    Top = 163
+    Left = 160
+    Top = 152
   end
 end

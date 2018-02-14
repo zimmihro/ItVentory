@@ -22,6 +22,7 @@ object SuchenForm: TSuchenForm
     Height = 21
     TabOrder = 0
     Text = 'SuchbegriffEdit'
+    OnKeyPress = SuchbegriffEditKeyPress
   end
   object AuswahlFelderBox: TComboBox
     Left = 16
@@ -33,7 +34,7 @@ object SuchenForm: TSuchenForm
   end
   object SuchenButton: TButton
     Left = 16
-    Top = 72
+    Top = 70
     Width = 81
     Height = 25
     Caption = 'SuchenButton'

@@ -1,0 +1,54 @@
+unit Helpers;
+
+interface
+
+uses IdHashMessageDigest, idHash, VCL.Forms;
+
+type
+  TSuchEintrag = record
+    SpaltenName: string;
+    AnzeigeName: string;
+    constructor Create(Spalte, Anzeige: string);
+  end;
+
+function getMD5Hash(input: string): string;
+function getRandomString(strLength: integer): string;
+
+implementation
+
+
+{ THelper }
+
+function getMD5Hash(input: string): string;
+var
+  md5hasher: TIdHashMessageDigest5;
+begin
+  md5hasher := TIdHashMessageDigest5.Create;
+  try
+    result := md5hasher.HashStringAsHex(input);
+  finally
+    md5hasher.Free;
+  end;
+end;
+
+function getRandomString(strLength: integer): string;
+var
+  temp: integer;
+begin
+  randomize;
+  repeat
+    temp := random(255);
+    if temp in [33 .. 126] then
+      result := result + Chr(temp);
+  until length(result) = strLength;
+end;
+
+{ TSuchEintrag }
+
+constructor TSuchEintrag.Create(Spalte, Anzeige: string);
+begin
+  self.SpaltenName := Spalte;
+  self.AnzeigeName := Anzeige;
+end;
+
+end.

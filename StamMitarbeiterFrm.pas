@@ -3,144 +3,136 @@ unit StamMitarbeiterFrm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  System.Generics.Collections, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids;
+  Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, classesPersonen, MainFrm, Helpers, SuchenFrm, XStammdatenFrm;
 
 type
-  TStamMitarbeiterForm = class(TForm)
-    NameEdit: TDBEdit;
-    MitarbeiterSource: TDataSource;
-    VornameEdit: TDBEdit;
-    NeuButton: TButton;
-    BearbeitenButton: TButton;
-    SpeichernButton: TButton;
-    AbbrechenButton: TButton;
-    LoeschenButton: TButton;
-    Label1: TLabel;
+  TStamMitarbeiterForm = class(TXStammdatenForm)
+    Button1: TButton;
+    DataSource1: TDataSource;
+    FDTable1: TFDTable;
+    DBGrid1: TDBGrid;
+    NameEdit: TEdit;
     Label2: TLabel;
-    MitarbeiterTable: TFDTable;
-    MitarbeiterGrid: TDBGrid;
-    procedure SchaltflaechenUmschalten();
-    procedure FormShow(Sender: TObject);
-    procedure NeuButtonClick(Sender: TObject);
-    procedure BearbeitenButtonClick(Sender: TObject);
-    procedure SpeichernButtonClick(Sender: TObject);
+    VornameEdit: TEdit;
+    Label1: TLabel;
+    function EingabeValidieren(): boolean;
+    procedure SuchenButtonClick(Sender: TObject);
+    procedure AnzeigeFuellen;
+    procedure AnzeigeUmschalten(Status: TFormStatus); reintroduce;
     procedure AbbrechenButtonClick(Sender: TObject);
     procedure LoeschenButtonClick(Sender: TObject);
-    function EingabeValidieren(): boolean;
-    procedure MitarbeiterGridCellClick(Column: TColumn);
-    procedure FormCreate(Sender: TObject);
-
+    procedure SpeichernButtonClick(Sender: TObject);
+    procedure NeuButtonClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
-
+    Mitarbeiter: TMitarbeiter;
+    { Private-Deklarationen }
   public
     { Public-Deklarationen }
   end;
 
 var
-  StamMitarbeiterForm     : TStamMitarbeiterForm;
-  NeuerMitarbeiter: boolean;
-  PasswortAendern : boolean;
+  StamMitarbeiterForm: TStamMitarbeiterForm;
 
 implementation
 
-uses MainFrm, Helpers;
-
 {$R *.dfm}
 
-{ TNewUserForm }
 
 procedure TStamMitarbeiterForm.AbbrechenButtonClick(Sender: TObject);
 begin
-  MitarbeiterTable.Cancel;
-  NeuerMitarbeiter := false;
-  SchaltflaechenUmschalten;
+  self.AnzeigeFuellen;
+  if Assigned(Mitarbeiter) then
+    self.AnzeigeUmschalten(fsGesperrt)
+  else
+    self.AnzeigeUmschalten(fsLeer)
 end;
 
-procedure TStamMitarbeiterForm.BearbeitenButtonClick(Sender: TObject);
+procedure TStamMitarbeiterForm.AnzeigeFuellen;
 begin
-  MitarbeiterTable.Edit;
-  SchaltflaechenUmschalten;
-  if MitarbeiterTable.State = dsInsert then
-    exit;
+  if Assigned(Mitarbeiter) then
+  begin
+    self.NameEdit.Text := Mitarbeiter.Name;
+    self.VornameEdit.Text := Mitarbeiter.Vorname;
+  end
+  else
+  begin
+    self.NameEdit.Clear;
+    self.VornameEdit.Clear
+  end;
 end;
 
-function TStamMitarbeiterForm.EingabeValidieren: boolean;
+procedure TStamMitarbeiterForm.AnzeigeUmschalten(Status: TFormStatus);
+begin
+  inherited;
+  self.NameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.VornameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.AnzeigeFuellen;
+end;
+
+procedure TStamMitarbeiterForm.Button1Click(Sender: TObject);
+begin
+  self.FDTable1.Refresh;
+end;
+
+function TStamMitarbeiterForm.EingabeValidieren:
+    boolean;
 begin
   result := false;
 
-  if (MitarbeiterTable.FieldByName('Name').IsNull) or (MitarbeiterTable.FieldByName('Name').AsString = '') then
-  begin
-    MessageDlg('Bitte ergänzen Sie den Namen bevor Sie den Datensatz speichern!', mtError, [mbOk], 0);
-    exit;
-  end;
-
-  if (MitarbeiterTable.FieldByName('Vorname').IsNull) or (MitarbeiterTable.FieldByName('Vorname').AsString = '') then
-  begin
-    MessageDlg('Bitte ergänzen Sie den Vornamen bevor Sie den Datensatz speichern!', mtError, [mbOk], 0);
-    exit;
-  end;
-
-  result := true;
 end;
 
-procedure TStamMitarbeiterForm.FormCreate(Sender: TObject);
-begin
-  MitarbeiterTable.Open();
-  NeuerMitarbeiter := false;
-end;
-
-procedure TStamMitarbeiterForm.FormShow(Sender: TObject);
-begin
-  SchaltflaechenUmschalten;
-end;
 
 procedure TStamMitarbeiterForm.LoeschenButtonClick(Sender: TObject);
-var
-  mitarbeiterName: string;
 begin
-  mitarbeiterName := MitarbeiterTable.FieldByName('Vorname').AsString + ' ' +
-      MitarbeiterTable.FieldByName('Name').AsString;
-  if MessageDlg('Wollen sie den Mitarbeiter ' + mitarbeiterName + ' wirklich löschen?', mtConfirmation, [mbYes, mbNo],
-      0) = IDYES then
-  begin
-    MitarbeiterTable.Delete;
-    SchaltflaechenUmschalten;
-  end;
-end;
-
-procedure TStamMitarbeiterForm.MitarbeiterGridCellClick(Column: TColumn);
-begin
-  SchaltflaechenUmschalten;
+  if messagedlg('Möchten Sie den Mitarbeiter ' + Mitarbeiter.VollName + ' wirklich löschen?', mtConfirmation,
+      [mbYes, mbCancel], 0) = mrYes THEN
+    Mitarbeiter.Loeschen;
+  FreeAndNil(Mitarbeiter);
+  self.AnzeigeUmschalten(fsLeer);
 end;
 
 procedure TStamMitarbeiterForm.NeuButtonClick(Sender: TObject);
 begin
-  MitarbeiterTable.Insert;
-  SchaltflaechenUmschalten;
-end;
-
-procedure TStamMitarbeiterForm.SchaltflaechenUmschalten;
-begin
-  MitarbeiterGrid.Enabled := not(MitarbeiterTable.State in [dsEdit, dsInsert]);
-  SpeichernButton.Enabled := MitarbeiterTable.State in [dsEdit, dsInsert];
-  AbbrechenButton.Enabled := MitarbeiterTable.State in [dsEdit, dsInsert];
-  BearbeitenButton.Enabled := not(MitarbeiterTable.State in [dsEdit, dsInsert]);
-  NeuButton.Enabled := not(MitarbeiterTable.State in [dsEdit, dsInsert]);
-  NameEdit.Enabled := MitarbeiterTable.State in [dsEdit, dsInsert];
-  VornameEdit.Enabled := MitarbeiterTable.State in [dsEdit, dsInsert];
+  if Assigned(Mitarbeiter) then
+    FreeAndNil(Mitarbeiter);
+  self.AnzeigeUmschalten(fsNeu);
 end;
 
 procedure TStamMitarbeiterForm.SpeichernButtonClick(Sender: TObject);
 begin
-  if EingabeValidieren then
+  if Assigned(Mitarbeiter) then
+    Mitarbeiter.Speichern
+  else
   begin
-    MitarbeiterTable.Post;
-    SchaltflaechenUmschalten;
+    Mitarbeiter := TMitarbeiter.Create(NameEdit.Text, VornameEdit.Text, MainForm.MainConnection);
+    Mitarbeiter.Speichern;
+  end;
+  self.AnzeigeUmschalten(fsGesperrt);
+end;
+
+procedure TStamMitarbeiterForm.SuchenButtonClick(Sender: TObject);
+var
+  SuchenForm   : TSuchenForm;
+  SuchEintraege: TList<TSucheintrag>;
+begin
+  SuchEintraege := TList<TSucheintrag>.Create;
+  SuchEintraege.Add(TSucheintrag.Create('Name', 'Nachname'));
+  SuchEintraege.Add(TSucheintrag.Create('Vorname', 'Vorname'));
+  SuchEintraege.Add(TSucheintrag.Create('Vorname + '' '' + Name', 'voller Name'));
+  SuchenForm := TSuchenForm.Create(application, 'Mitarbeiter', SuchEintraege, MainForm.MainConnection);
+  if SuchenForm.ShowModal = mrOK then
+  begin
+    if Assigned(Mitarbeiter) then
+      FreeAndNil(Mitarbeiter);
+    Mitarbeiter := TMitarbeiter.CreateFromId(SuchenForm.Ergebnis, MainForm.MainConnection);
+    self.AnzeigeUmschalten(fsGesperrt);
   end;
 end;
 

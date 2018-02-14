@@ -1,39 +1,52 @@
-object StamBenutzerForm: TStamBenutzerForm
-  Left = 0
-  Top = 0
+inherited StamBenutzerForm: TStamBenutzerForm
   Caption = 'StamBenutzerForm'
-  ClientHeight = 267
-  ClientWidth = 531
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
-  OldCreateOrder = False
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
-    Left = 308
-    Top = 8
+  object Label1: TLabel [0]
+    Left = 316
+    Top = 51
     Width = 46
     Height = 13
     Caption = 'Vorname:'
   end
-  object Label2: TLabel
-    Left = 308
-    Top = 49
+  object Label2: TLabel [1]
+    Left = 316
+    Top = 92
     Width = 54
     Height = 13
     Caption = 'Nachname:'
   end
-  object Label3: TLabel
-    Left = 308
-    Top = 90
+  object Label3: TLabel [2]
+    Left = 316
+    Top = 133
     Width = 48
     Height = 13
     Caption = 'Passwort:'
+  end
+  object Label4: TLabel [3]
+    Left = 316
+    Top = 12
+    Width = 73
+    Height = 13
+    Caption = 'Benutzername:'
+  end
+  inherited NeuButton: TButton
+    OnClick = NeuButtonClick
+  end
+  inherited BearbeitenButton: TButton
+    OnClick = BearbeitenButtonClick
+  end
+  inherited SpeichernButton: TButton
+    OnClick = SpeichernButtonClick
+  end
+  inherited AbbrechenButton: TButton
+    OnClick = nil
+  end
+  inherited LoeschenButton: TButton
+    OnClick = nil
+  end
+  inherited SuchenButton: TButton
+    OnClick = nil
   end
   object BenutzerGrid: TDBGrid
     Left = 8
@@ -42,7 +55,7 @@ object StamBenutzerForm: TStamBenutzerForm
     Height = 252
     DataSource = BenutzerSource
     Options = [dgEditing, dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
-    TabOrder = 0
+    TabOrder = 6
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
@@ -62,82 +75,38 @@ object StamBenutzerForm: TStamBenutzerForm
         Visible = True
       end>
   end
-  object NeuButton: TButton
-    Left = 447
-    Top = 9
-    Width = 75
-    Height = 25
-    Caption = 'Neu'
-    TabOrder = 1
-    OnClick = NeuButtonClick
-  end
-  object BearbeitenButton: TButton
-    Left = 447
-    Top = 40
-    Width = 75
-    Height = 25
-    Caption = 'Bearbeiten'
-    TabOrder = 2
-    OnClick = BearbeitenButtonClick
-  end
-  object SpeichernButton: TButton
-    Left = 447
-    Top = 71
-    Width = 75
-    Height = 25
-    Caption = 'Speichern'
-    TabOrder = 3
-  end
-  object AbbrechenButton: TButton
-    Left = 447
-    Top = 102
-    Width = 75
-    Height = 25
-    Caption = 'Abbrechen'
-    TabOrder = 4
-  end
-  object LoeschenButton: TButton
-    Left = 447
-    Top = 133
-    Width = 75
-    Height = 25
-    Caption = 'L'#246'schen'
-    TabOrder = 5
-  end
   object PasswortAendernButton: TButton
-    Left = 312
-    Top = 109
+    Left = 320
+    Top = 152
     Width = 75
     Height = 25
     Caption = #196'ndern'
-    TabOrder = 6
-    OnClick = PasswortAendernButtonClick
-  end
-  object SuchenButton: TButton
-    Left = 447
-    Top = 216
-    Width = 75
-    Height = 25
-    Caption = 'Suchen'
     TabOrder = 7
   end
   object VornameEdit: TEdit
-    Left = 308
-    Top = 22
+    Left = 316
+    Top = 65
     Width = 121
     Height = 21
     TabOrder = 8
   end
   object NameEdit: TEdit
-    Left = 308
-    Top = 63
+    Left = 316
+    Top = 106
     Width = 121
     Height = 21
     TabOrder = 9
   end
+  object BenutzernameEdit: TEdit
+    Left = 316
+    Top = 26
+    Width = 121
+    Height = 21
+    TabOrder = 10
+  end
   object BenutzerSource: TDataSource
     DataSet = BenutzerTable
-    Left = 488
+    Left = 352
     Top = 163
   end
   object BenutzerTable: TFDTable
@@ -146,7 +115,7 @@ object StamBenutzerForm: TStamBenutzerForm
     Connection = MainForm.MainConnection
     UpdateOptions.UpdateTableName = 'Benutzer'
     TableName = 'Benutzer'
-    Left = 448
+    Left = 312
     Top = 163
   end
 end

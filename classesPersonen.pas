@@ -16,10 +16,12 @@ type
     FName   : string;
     FVorname: string;
     procedure IdErmitteln();
+    function getVollName(): string;
   public
-    property Id     : Variant read FId write FId;
-    property Name   : string read FName write FName;
-    property Vorname: string read FVorname write FVorname;
+    property Id      : Variant read FId write FId;
+    property Name    : string read FName write FName;
+    property Vorname : string read FVorname write FVorname;
+    property VollName: string read getVollName;
     constructor Create(name, Vorname: string; Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
@@ -43,7 +45,7 @@ type
     property Md5Passwort: string read FMd5Passwort write setMd5Passwort;
     property Md5Salt    : string read FMd5Salt write setMd5Salt;
     constructor Create(Login, Md5Passwort, Md5Salt, name, Vorname: string;
-      Connection: TFDConnection);
+        Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
     procedure Aktualisieren();
@@ -61,6 +63,9 @@ type
     property BenutzerListe: TList<TBenutzer> read FBenutzerListe write FBenutzerListe;
     constructor Create(Connection: TFDConnection);
     procedure BenutzerSuchen(Suchbegriff: string; Connection: TFDConnection);
+
+  const
+    TABLE_NAME: string = 'Benutzer';
   end;
 
 implementation
@@ -69,48 +74,55 @@ implementation
 
 procedure TMitarbeiter.Aktualisieren;
 begin
-  with self.SqlQuery, SQL do
+  if self.Id <> 0 then
   begin
-    Clear;
-    Add('UPDATE :table SET');
-    Add('Name = :name, ');
-    Add('Vorname = :vorname,');
-    Add('WHERE Id = :id');
-    ParamByName('table').Value   := self.TABLE_NAME;
-    ParamByName('name').Value    := self.name;
-    ParamByName('vorname').Value := self.Vorname;
-    ParamByName('id').Value      := self.Id;
+    with self.SqlQuery, SQL do
+    begin
+      Clear;
+      Add('UPDATE ' + self.TABLE_NAME + ' SET');
+      Add('Name = :name, ');
+      Add('Vorname = :vorname,');
+      Add('WHERE Id = :id');
+      ParamByName('name').Value := self.name;
+      ParamByName('vorname').Value := self.Vorname;
+      ParamByName('id').Value := self.Id;
+    end;
+    self.SqlQuery.ExecSQL;
   end;
-  self.SqlQuery.ExecSQL;
 end;
 
 constructor TMitarbeiter.Create(name, Vorname: string; Connection: TFDConnection);
 begin
-  self.name                := name;
-  self.Vorname             := Vorname;
-  self.SqlQuery            := TFDQuery.Create(nil);
+  self.Id := 0;
+  self.name := name;
+  self.Vorname := Vorname;
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
 end;
 
 constructor TMitarbeiter.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
-  self.SqlQuery            := TFDQuery.Create(nil);
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
   with self.SqlQuery, SQL do
   begin
     Clear;
-    Add('SELECT * FROM :table WHERE Id = :id');
-    ParamByName('table').Value := self.TABLE_NAME;
-    ParamByName('id').Value    := Id;
+    Add('SELECT * FROM ' + self.TABLE_NAME + ' WHERE Id = :id');
+    ParamByName('id').Value := Id;
   end;
   self.SqlQuery.Open;
   if self.SqlQuery.RecordCount = 1 then
   begin
-    self.Id      := self.SqlQuery.FieldByName('Id').AsInteger;
-    self.name    := self.SqlQuery.FieldByName('Name').AsString;
+    self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
+    self.name := self.SqlQuery.FieldByName('Name').AsString;
     self.Vorname := self.SqlQuery.FieldByName('Vorname').AsString;
   end;
   self.SqlQuery.Close;
+end;
+
+function TMitarbeiter.getVollName: string;
+begin
+  Result := self.Vorname + ' ' + self.name;
 end;
 
 procedure TMitarbeiter.IdErmitteln;
@@ -118,8 +130,7 @@ begin
   with self.SqlQuery, SQL do
   begin
     Clear;
-    Add('SELECT Id FROM :table ORDER BY Id DESC LIMIT 1');
-    ParamByName('table').Value := self.TABLE_NAME;
+    Add('SELECT Id FROM ' + self.TABLE_NAME + ' ORDER BY Id DESC LIMIT 1');
   end;
   self.SqlQuery.Open;
   if self.SqlQuery.RecordCount = 1 then
@@ -129,88 +140,96 @@ end;
 
 procedure TMitarbeiter.Loeschen;
 begin
-  with self.SqlQuery, SQL do
+  if self.Id <> 0 then
   begin
-    Clear;
-    Add('DELETE FROM :table WHERE Id = :id');
-    ParamByName('table').Value := self.TABLE_NAME;
-    ParamByName('id').Value    := self.Id;
+    with self.SqlQuery, SQL do
+    begin
+      Clear;
+      Add('DELETE FROM ' + self.TABLE_NAME + ' WHERE Id = :id');
+      ParamByName('id').Value := self.Id;
+    end;
+    self.SqlQuery.ExecSQL;
   end;
-  self.SqlQuery.ExecSQL;
 end;
 
 procedure TMitarbeiter.Speichern;
 begin
-  with self.SqlQuery, SQL do
+  if self.Id = 0 then
   begin
-    Clear;
-    Add('INSERT INTO :table (Name, Vorname)');
-    Add('VALUES (:name,:vorname'')');
-    ParamByName('table').Value   := self.TABLE_NAME;
-    ParamByName('name').Value    := self.name;
-    ParamByName('vorname').Value := self.Vorname;
-  end;
-  self.SqlQuery.ExecSQL;
-  self.IdErmitteln;
+    with self.SqlQuery, SQL do
+    begin
+      Clear;
+      Add('INSERT INTO ' + self.TABLE_NAME + ' (Name, Vorname)');
+      Add('VALUES (:name,:vorname)');
+      ParamByName('name').Value := self.name;
+      ParamByName('vorname').Value := self.Vorname;
+    end;
+    self.SqlQuery.ExecSQL;
+    self.IdErmitteln;
+  end
+  else
+    self.Aktualisieren;
 end;
 
 { TBenutzer }
 
 procedure TBenutzer.Aktualisieren;
 begin
-  with self.SqlQuery, SQL do
+  if self.Id <> 0 then
   begin
-    Clear;
-    Add('UPDATE :table SET');
-    Add('Login = :login,');
-    Add('Md5Passwort = :pw,');
-    Add('Md5Salt = :salt,');
-    Add('Name = :name, ');
-    Add('Vorname = :vorname');
-    Add('WHERE Id = :id');
-    ParamByName('table').Value   := self.TABLE_NAME;
-    ParamByName('login').Value   := self.Login;
-    ParamByName('pw').Value      := self.Md5Passwort;
-    ParamByName('salt').Value    := self.Md5Salt;
-    ParamByName('name').Value    := self.name;
-    ParamByName('vorname').Value := self.Vorname;
-    ParamByName('id').Value      := self.Id;
+    with self.SqlQuery, SQL do
+    begin
+      Clear;
+      Add('UPDATE ' + self.TABLE_NAME + ' SET');
+      Add('Login = :login,');
+      Add('Md5Passwort = :pw,');
+      Add('Md5Salt = :salt,');
+      Add('Name = :name, ');
+      Add('Vorname = :vorname');
+      Add('WHERE Id = :id');
+      ParamByName('login').Value := self.Login;
+      ParamByName('pw').Value := self.Md5Passwort;
+      ParamByName('salt').Value := self.Md5Salt;
+      ParamByName('name').Value := self.name;
+      ParamByName('vorname').Value := self.Vorname;
+      ParamByName('id').Value := self.Id;
+    end;
+    self.SqlQuery.ExecSQL;
   end;
-  self.SqlQuery.ExecSQL;
 end;
 
 constructor TBenutzer.Create(Login, Md5Passwort, Md5Salt, name, Vorname: string;
-  Connection: TFDConnection);
+    Connection: TFDConnection);
 begin
-  self.Login               := Login;
-  self.Md5Passwort         := Md5Passwort;
-  self.Md5Salt             := Md5Salt;
-  self.name                := name;
-  self.Vorname             := Vorname;
-  self.SqlQuery            := TFDQuery.Create(nil);
+  self.Id := 0;
+  self.Login := Login;
+  self.Md5Passwort := Md5Passwort;
+  self.Md5Salt := Md5Salt;
+  self.name := name;
+  self.Vorname := Vorname;
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
 end;
 
 constructor TBenutzer.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
-  self.SqlQuery            := TFDQuery.Create(nil);
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
   with self.SqlQuery, SQL do
   begin
     Clear;
-    Add('SELECT * FROM :table WHERE Id = :id');
-    ParamByName('table').Value := self.TABLE_NAME;
-    ParamByName('id').Value    := Id;
+    Add('SELECT * FROM ' + self.TABLE_NAME + ' WHERE Id = :id');
+    ParamByName('id').Value := Id;
   end;
   self.SqlQuery.Open;
   if self.SqlQuery.RecordCount = 1 then
   begin
-    self.Id          := self.SqlQuery.FieldByName('Id').AsInteger;
-    self.Login       := self.SqlQuery.FieldByName('Login').AsString;
+    self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
+    self.Login := self.SqlQuery.FieldByName('Login').AsString;
     self.Md5Passwort := self.SqlQuery.FieldByName('Md5Passwort').AsString;
-    self.Md5Salt     := self.SqlQuery.FieldByName('Md5Salt').AsString;
-    self.name        := self.SqlQuery.FieldByName('Name').AsString;
-    self.Vorname     := self.SqlQuery.FieldByName('Vorname').AsString;
+    self.Md5Salt := self.SqlQuery.FieldByName('Md5Salt').AsString;
+    self.name := self.SqlQuery.FieldByName('Name').AsString;
+    self.Vorname := self.SqlQuery.FieldByName('Vorname').AsString;
   end;
   self.SqlQuery.Close;
 end;
@@ -233,20 +252,24 @@ end;
 
 procedure TBenutzer.Speichern;
 begin
-  with self.SqlQuery, SQL do
+  if self.Id = 0 then
   begin
-    Clear;
-    Add('INSERT INTO :table (Login, Md5Passwort, Md5Salt, Name, Vorname)');
-    Add('VALUES (:login, :pw, :salt, :name, :vorname)');
-    ParamByName('table').Value   := self.TABLE_NAME;
-    ParamByName('login').Value   := self.Login;
-    ParamByName('pw').Value      := self.Md5Passwort;
-    ParamByName('salt').Value    := self.Md5Salt;
-    ParamByName('name').Value    := self.name;
-    ParamByName('vorname').Value := self.Vorname
-  end;
-  self.SqlQuery.ExecSQL;
-  self.IdErmitteln;
+    with self.SqlQuery, SQL do
+    begin
+      Clear;
+      Add('INSERT INTO ' + self.TABLE_NAME + ' (Login, Md5Passwort, Md5Salt, Name, Vorname)');
+      Add('VALUES (:login, :pw, :salt, :name, :vorname)');
+      ParamByName('login').Value := self.Login;
+      ParamByName('pw').Value := self.Md5Passwort;
+      ParamByName('salt').Value := self.Md5Salt;
+      ParamByName('name').Value := self.name;
+      ParamByName('vorname').Value := self.Vorname
+    end;
+    self.SqlQuery.ExecSQL;
+    self.IdErmitteln;
+  end
+  else
+    self.Aktualisieren;
 end;
 
 { TBenutzerVerwaltung }
@@ -261,7 +284,7 @@ begin
   begin
     Close;
     Clear;
-    Add('SELECT Id FROM Benutzer');
+    Add('SELECT Id FROM ' + self.TABLE_NAME);
     Add('WHERE Name = :input');
     Add('  OR Vorname = : input');
     Add('  OR Vorname + '' '' + Name = :input');
@@ -271,7 +294,7 @@ begin
   for I := 0 to self.SqlQuery.RecordCount do
   begin
     BenutzerId := self.SqlQuery.FieldByName('Id').AsInteger;
-    Benutzer   := TBenutzer.CreateFromId(BenutzerId, Connection);
+    Benutzer := TBenutzer.CreateFromId(BenutzerId, Connection);
     self.BenutzerListe.Add(Benutzer);
     Benutzer.Free;
   end;

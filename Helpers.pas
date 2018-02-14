@@ -4,10 +4,15 @@ interface
 
 uses IdHashMessageDigest, idHash, VCL.Forms;
 
-type TSuchEintrag = record
-  SpaltenName : string;
-  AnzeigeName : string;
-end;
+type
+  TSuchEintrag = record
+    SpaltenName: string;
+    AnzeigeName: string;
+    constructor Create(Spalte, Anzeige: string);
+  end;
+
+type
+  TFormStatus = (fsBearbeiten, fsGesperrt, fsNeu, fsLeer);
 
 function getMD5Hash(input: string): string;
 function getRandomString(strLength: integer): string;
@@ -39,6 +44,14 @@ begin
     if temp in [33 .. 126] then
       result := result + Chr(temp);
   until length(result) = strLength;
+end;
+
+{ TSuchEintrag }
+
+constructor TSuchEintrag.Create(Spalte, Anzeige: string);
+begin
+  self.SpaltenName := Spalte;
+  self.AnzeigeName := Anzeige;
 end;
 
 end.

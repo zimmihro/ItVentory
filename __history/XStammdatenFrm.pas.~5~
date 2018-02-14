@@ -1,0 +1,45 @@
+unit XStammdatenFrm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Helpers;
+
+type
+  TXStammdatenForm = class(TForm)
+    NeuButton: TButton;
+    BearbeitenButton: TButton;
+    SpeichernButton: TButton;
+    AbbrechenButton: TButton;
+    LoeschenButton: TButton;
+    SuchenButton: TButton;
+    procedure AnzeigeUmschalten(Status: TFormStatus);
+  private
+    FormStatus : TFormstatus;
+    { Private-Deklarationen }
+  public
+    { Public-Deklarationen }
+  end;
+
+var
+  XStammdatenForm: TXStammdatenForm;
+
+implementation
+
+{$R *.dfm}
+
+{ TXStammdatenForm }
+
+procedure TXStammdatenForm.AnzeigeUmschalten(Status: TFormStatus);
+begin
+  self.FormStatus := Status;
+  self.NeuButton.Enabled := self.FormStatus in [fsGesperrt, fsLeer];
+  self.BearbeitenButton.Enabled := self.FormStatus = fsGesperrt;
+  self.SpeichernButton.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.AbbrechenButton.Enabled := self.FormStatus in [fsBearbeiten, fsNeu];
+  self.LoeschenButton.Enabled := self.FormStatus = fsGesperrt;
+  self.SuchenButton.Enabled := self.FormStatus in [fsGesperrt, fsLeer];
+end;
+
+end.

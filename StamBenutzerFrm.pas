@@ -3,39 +3,36 @@ unit StamBenutzerFrm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
-  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Vcl.StdCtrls, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids,
-  classesPersonen;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  System.Generics.Collections, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, classesPersonen, MainFrm, Helpers, SuchenFrm, XStammdatenFrm;
 
 type
-  TStamBenutzerForm = class(TForm)
-    BenutzerGrid: TDBGrid;
+  TStamBenutzerForm = class(TXStammdatenForm)
     Label1: TLabel;
     Label2: TLabel;
-    NeuButton: TButton;
-    BearbeitenButton: TButton;
-    SpeichernButton: TButton;
-    AbbrechenButton: TButton;
-    LoeschenButton: TButton;
-    BenutzerSource: TDataSource;
-    BenutzerTable: TFDTable;
-    PasswortAendernButton: TButton;
     Label3: TLabel;
-    SuchenButton: TButton;
+    BenutzerGrid: TDBGrid;
+    PasswortAendernButton: TButton;
     VornameEdit: TEdit;
     NameEdit: TEdit;
+    BenutzerSource: TDataSource;
+    BenutzerTable: TFDTable;
+    Label4: TLabel;
+    BenutzernameEdit: TEdit;
+    procedure AnzeigeFuellen;
+    procedure AnzeigeUmschalten(Status: TFormStatus); reintroduce;
     procedure NeuButtonClick(Sender: TObject);
-    procedure SchaltflaechenUmschalten;
-    procedure BearbeitenButtonClick(Sender: TObject);
-    procedure PasswortAendernButtonClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
+    procedure SpeichernButtonClick(Sender: TObject);
   private
-
+    Benutzer: TBenutzer;
+    { Private-Deklarationen }
   public
-    Benutzer : TBenutzer;
-    BenutzerVerwaltung : TBenutzerVerwaltung;
+    { Public-Deklarationen }
   end;
 
 var
@@ -43,47 +40,54 @@ var
 
 implementation
 
-uses MainFrm, Helpers, PwAendernFrm;
 {$R *.dfm}
 
+{ TStamBenutzerForm }
 
-procedure TStamBenutzerForm.BearbeitenButtonClick(Sender: TObject);
+procedure TStamBenutzerForm.AnzeigeFuellen;
 begin
-  BenutzerTable.Edit;
-  SchaltflaechenUmschalten;
-  PasswortAendernButton.Caption := 'Ändern';
+  if Assigned(Benutzer) then
+  begin
+    self.NameEdit.Text := Benutzer.Name;
+    self.VornameEdit.Text := Benutzer.Vorname;
+  end
+  else
+  begin
+    self.NameEdit.Clear;
+    self.VornameEdit.Clear
+  end;
 end;
 
-procedure TStamBenutzerForm.FormCreate(Sender: TObject);
+procedure TStamBenutzerForm.AnzeigeUmschalten(Status: TFormStatus);
 begin
-  BenutzerVerwaltung := TBenutzerVerwaltung.Create(MainForm.MainConnection);
+  inherited;
+  self.NameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.VornameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.BenutzernameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.PasswortAendernButton.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.AnzeigeFuellen;
 end;
 
 procedure TStamBenutzerForm.NeuButtonClick(Sender: TObject);
 begin
-  BenutzerTable.Insert;
-  PasswortAendernButton.Caption := 'Festlegen';
-  SchaltflaechenUmschalten;
+  if Assigned(self.Benutzer) then
+    FreeAndNil(self.Benutzer);
+  self.AnzeigeUmschalten(fsNeu);
 end;
 
-procedure TStamBenutzerForm.PasswortAendernButtonClick(Sender: TObject);
-var
-  PwAendernForm: TPwAendernForm;
+procedure TStamBenutzerForm.SpeichernButtonClick(Sender: TObject);
 begin
-  PwAendernForm := TPwAendernForm.create(application);
-  PwAendernForm.ShowModal;
-end;
-
-procedure TStamBenutzerForm.SchaltflaechenUmschalten;
-begin
-  BenutzerGrid.Enabled := not(BenutzerTable.State in [dsEdit, dsInsert]);
-  SpeichernButton.Enabled := BenutzerTable.State in [dsEdit, dsInsert];
-  AbbrechenButton.Enabled := BenutzerTable.State in [dsEdit, dsInsert];
-  BearbeitenButton.Enabled := not(BenutzerTable.State in [dsEdit, dsInsert]);
-  NeuButton.Enabled := not(BenutzerTable.State in [dsEdit, dsInsert]);
-  NameEdit.Enabled := BenutzerTable.State in [dsEdit, dsInsert];
-  VornameEdit.Enabled := BenutzerTable.State in [dsEdit, dsInsert];
-  PasswortAendernButton.Enabled := BenutzerTable.State in [dsEdit, dsInsert];
+  begin
+    if Assigned(self.Benutzer) then
+      self.Benutzer.Speichern
+    else
+    begin
+      self.Benutzer := TBenutzer.Create(BenutzernameEdit.Text, NameEdit.Text, VornameEdit.Text,
+          MainForm.MainConnection);
+      self.Benutzer.Speichern;
+    end;
+    self.AnzeigeUmschalten(fsGesperrt);
+  end;
 end;
 
 end.
