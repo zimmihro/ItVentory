@@ -46,7 +46,6 @@ object PwAendernForm: TPwAendernForm
     PasswordChar = '*'
     TabOrder = 1
     TextHint = 'Passwort wiederholen'
-    OnKeyPress = Passwort2EditKeyPress
   end
   object OkButton: TButton
     Left = 24
@@ -57,13 +56,13 @@ object PwAendernForm: TPwAendernForm
     TabOrder = 2
     OnClick = OkButtonClick
   end
-  object AbbrechenButton: TButton
+  object Button1: TButton
     Left = 103
     Top = 91
     Width = 73
     Height = 25
     Caption = 'Abbrechen'
     TabOrder = 3
-    OnClick = AbbrechenButtonClick
+    OnClick = Button1Click
   end
 end

@@ -57,7 +57,7 @@ implementation
 procedure TStamBenutzerForm.AbbrechenButtonClick(Sender: TObject);
 begin
   self.AnzeigeFuellen;
-  if Assigned(self.Benutzer) and (self.FormStatus <> fsNeu) then
+  if Assigned(self.Benutzer) then
     self.AnzeigeUmschalten(fsGesperrt)
   else
     self.AnzeigeUmschalten(fsLeer)
@@ -65,7 +65,7 @@ end;
 
 procedure TStamBenutzerForm.AnzeigeFuellen;
 begin
-  if Assigned(Benutzer) and (self.FormStatus <> fsNeu) then
+  if Assigned(Benutzer) then
   begin
     self.NameEdit.Text := Benutzer.Name;
     self.VornameEdit.Text := Benutzer.Vorname;
@@ -151,7 +151,7 @@ end;
 
 procedure TStamBenutzerForm.SpeichernButtonClick(Sender: TObject);
 begin
-  try
+  begin
     if not Assigned(self.Benutzer) then
       if self.PasswortValide then
       begin
@@ -163,22 +163,15 @@ begin
       end
       else
       begin
-        messagedlg('Bitte legen sie vor dem Speichern ein Passwort fest!', mtInformation, [mbOk], 0);
+        MessageDlg('Bitte legen sie vor dem Speichern ein Passwort fest!', mtInformation, [mbOk], 0);
         PasswortButtonClick(self);
         exit;
       end;
     if self.Benutzer.Speichern then
       self.AnzeigeUmschalten(fsGesperrt)
     else
-      messagedlg('Beim speichern trat ein Fehler auf. Bitte wenden Sie sich an Ihren Administrator!', mtInformation,
+      MessageDlg('Beim speichern trat ein Fehler auf. Bitte wenden Sie sich an IhrenAdministrator', mtInformation,
           [mbOk], 0);
-  except
-    on E: Exception do
-    begin
-      messagedlg(E.ToString, mtInformation,
-          [mbOk], 0);
-      FreeAndNil(self.Benutzer);
-    end;
   end;
 end;
 

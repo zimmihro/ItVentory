@@ -16,7 +16,6 @@ type
     FName   : string;
     FVorname: string;
     procedure IdErmitteln();
-    procedure DatenEinlesen(Id: integer);
     function getVollName(): string;
   public
     property Id      : Variant read FId write FId;
@@ -41,7 +40,7 @@ type
     FMd5Salt    : string;
     procedure setMd5Passwort(hash: string);
     procedure setMd5Salt(salt: string);
-    procedure DatenEinlesen(Id: integer);
+    procedure DatenEinlesen();
     function istAnmeldeNameFrei(login: string; neuerNutzer: boolean): boolean;
   public
     property login      : string read FLogin write FLogin;
@@ -111,11 +110,6 @@ constructor TMitarbeiter.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
   self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
-  self.DatenEinlesen(Id);
-end;
-
-procedure TMitarbeiter.DatenEinlesen(Id: integer);
-begin
   with self.SqlQuery, SQL do
   begin
     Clear;
@@ -218,10 +212,7 @@ begin
       self.SqlQuery.ExecSQL;
     end;
     if self.SqlQuery.RowsAffected = 1 then
-    begin
       result := true;
-      self.DatenEinlesen(self.Id);
-    end;
   end
   else
     raise Exception.Create('Benutzername bereits vergeben!');
@@ -247,7 +238,7 @@ begin
   DatenEinlesen(Id);
 end;
 
-procedure TBenutzer.DatenEinlesen(Id: integer);
+procedure TBenutzer.DatenEinlesen;
 begin
   with self.SqlQuery, SQL do
   begin
@@ -310,7 +301,7 @@ begin
   if Length(hash) = 32 then
     self.FMd5Passwort := hash
   else
-    raise Exception.Create('Beim setzen des Passworts ist ein Fehler aufgetreten. (Passwort-Hash zu kurz)');
+    messageDlg('Beim setzen des Passworts ist ein Fehler aufgetreten', mtError, [mbOK], 0);
 end;
 
 procedure TBenutzer.setMd5Salt(salt: string);
@@ -318,7 +309,7 @@ begin
   if Length(salt) = 32 then
     self.FMd5Salt := salt
   else
-    raise Exception.Create('Beim setzen des Passworts ist ein Fehler aufgetreten. (Passwort-Salt zu kurz)');
+    messageDlg('Beim setzen des Passworts ist ein Fehler aufgetreten', mtError, [mbOK], 0);
 end;
 
 function TBenutzer.Speichern;

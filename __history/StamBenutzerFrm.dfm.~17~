@@ -102,15 +102,6 @@ inherited StamBenutzerForm: TStamBenutzerForm
     Height = 21
     TabOrder = 10
   end
-  object Button1: TButton
-    Left = 336
-    Top = 248
-    Width = 75
-    Height = 25
-    Caption = 'Button1'
-    TabOrder = 11
-    OnClick = Button1Click
-  end
   object BenutzerSource: TDataSource
     DataSet = BenutzerTable
     Left = 352

@@ -116,7 +116,7 @@ end;
 
 procedure TMitarbeiter.DatenEinlesen(Id: integer);
 begin
-  with self.SqlQuery, SQL do
+    with self.SqlQuery, SQL do
   begin
     Clear;
     Add('SELECT * FROM ' + self.TABLE_NAME + ' WHERE Id = :id');
@@ -310,7 +310,7 @@ begin
   if Length(hash) = 32 then
     self.FMd5Passwort := hash
   else
-    raise Exception.Create('Beim setzen des Passworts ist ein Fehler aufgetreten. (Passwort-Hash zu kurz)');
+    messageDlg('Beim setzen des Passworts ist ein Fehler aufgetreten', mtError, [mbOK], 0);
 end;
 
 procedure TBenutzer.setMd5Salt(salt: string);
@@ -318,7 +318,7 @@ begin
   if Length(salt) = 32 then
     self.FMd5Salt := salt
   else
-    raise Exception.Create('Beim setzen des Passworts ist ein Fehler aufgetreten. (Passwort-Salt zu kurz)');
+    messageDlg('Beim setzen des Passworts ist ein Fehler aufgetreten', mtError, [mbOK], 0);
 end;
 
 function TBenutzer.Speichern;

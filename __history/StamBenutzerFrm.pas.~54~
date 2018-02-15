@@ -174,11 +174,8 @@ begin
           [mbOk], 0);
   except
     on E: Exception do
-    begin
-      messagedlg(E.ToString, mtInformation,
+       messagedlg(E.ToString, mtInformation,
           [mbOk], 0);
-      FreeAndNil(self.Benutzer);
-    end;
   end;
 end;
 

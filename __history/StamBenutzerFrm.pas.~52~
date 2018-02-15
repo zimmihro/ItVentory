@@ -38,6 +38,7 @@ type
     procedure BearbeitenButtonClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   private
+    Status          : TFormStatus;
     Benutzer        : TBenutzer;
     BenutzerPasswort: TPasswort;
     function istPwValide(): boolean;
@@ -57,7 +58,7 @@ implementation
 procedure TStamBenutzerForm.AbbrechenButtonClick(Sender: TObject);
 begin
   self.AnzeigeFuellen;
-  if Assigned(self.Benutzer) and (self.FormStatus <> fsNeu) then
+  if Assigned(self.Benutzer) then
     self.AnzeigeUmschalten(fsGesperrt)
   else
     self.AnzeigeUmschalten(fsLeer)
@@ -65,7 +66,7 @@ end;
 
 procedure TStamBenutzerForm.AnzeigeFuellen;
 begin
-  if Assigned(Benutzer) and (self.FormStatus <> fsNeu) then
+  if Assigned(Benutzer) then
   begin
     self.NameEdit.Text := Benutzer.Name;
     self.VornameEdit.Text := Benutzer.Vorname;
@@ -151,7 +152,7 @@ end;
 
 procedure TStamBenutzerForm.SpeichernButtonClick(Sender: TObject);
 begin
-  try
+  begin
     if not Assigned(self.Benutzer) then
       if self.PasswortValide then
       begin
@@ -172,13 +173,6 @@ begin
     else
       messagedlg('Beim speichern trat ein Fehler auf. Bitte wenden Sie sich an Ihren Administrator!', mtInformation,
           [mbOk], 0);
-  except
-    on E: Exception do
-    begin
-      messagedlg(E.ToString, mtInformation,
-          [mbOk], 0);
-      FreeAndNil(self.Benutzer);
-    end;
   end;
 end;
 

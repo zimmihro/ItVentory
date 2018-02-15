@@ -42,9 +42,6 @@ inherited StamBenutzerForm: TStamBenutzerForm
   inherited LoeschenButton: TButton
     OnClick = LoeschenButtonClick
   end
-  inherited SuchenButton: TButton
-    OnClick = SuchenButtonClick
-  end
   object BenutzerGrid: TDBGrid
     Left = 8
     Top = 8
@@ -72,14 +69,14 @@ inherited StamBenutzerForm: TStamBenutzerForm
         Visible = True
       end>
   end
-  object PasswortButton: TButton
+  object PasswortAendernButton: TButton
     Left = 320
     Top = 152
     Width = 75
     Height = 25
     Caption = #196'ndern'
     TabOrder = 7
-    OnClick = PasswortButtonClick
+    OnClick = PasswortAendernButtonClick
   end
   object VornameEdit: TEdit
     Left = 316
@@ -101,15 +98,6 @@ inherited StamBenutzerForm: TStamBenutzerForm
     Width = 121
     Height = 21
     TabOrder = 10
-  end
-  object Button1: TButton
-    Left = 336
-    Top = 248
-    Width = 75
-    Height = 25
-    Caption = 'Button1'
-    TabOrder = 11
-    OnClick = Button1Click
   end
   object BenutzerSource: TDataSource
     DataSet = BenutzerTable

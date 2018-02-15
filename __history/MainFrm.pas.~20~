@@ -20,10 +20,8 @@ type
     Mitarbeiter1: TMenuItem;
     FDQuery1: TFDQuery;
     Label1: TLabel;
-    Benutzer1: TMenuItem;
     procedure FormShow(Sender: TObject);
     procedure Mitarbeiter1Click(Sender: TObject);
-    procedure Benutzer1Click(Sender: TObject);
   private
     procedure BenutzerAnmelden;
     { Private-Deklarationen }
@@ -36,19 +34,11 @@ var
 
 implementation
 
-uses helpers, LoginFrm, SuchenFrm, StamMitarbeiterfrm, StamBenutzerFrm, classesTelefonie, classesPersonen;
+uses helpers, LoginFrm, SuchenFrm, StamMitarbeiterfrm, classesTelefonie, classesPersonen;
 
 {$R *.dfm}
 
 { TMainForm }
-
-procedure TMainForm.Benutzer1Click(Sender: TObject);
-var
-  BenutzerForm: TStamBenutzerForm;
-begin
-  BenutzerForm := TStamBenutzerForm.Create(Application);
-  BenutzerForm.ShowModal;
-end;
 
 procedure TMainForm.BenutzerAnmelden;
 begin
@@ -73,9 +63,9 @@ procedure TMainForm.FormShow(Sender: TObject);
 //  SuchenForm: TSuchenForm;
 //  Benutzer  : TBenutzer;
 begin
-  self.MainConnection.Params.Database := ExtractFilePath(ParamStr(0)) + 'Database\ItVentory.db';
-  self.MainConnection.Connected := true;
-  BenutzerAnmelden;
+   self.MainConnection.Params.Database :=  ExtractFilePath(ParamStr(0))+'Database\ItVentory.db';
+   self.MainConnection.Connected := true;
+  //BenutzerAnmelden;
 //  Eintrag.SpaltenName := 'Id';
 //  Eintrag.AnzeigeName := 'Identifikationsnummer';
 //  Suche := TList<TSucheintrag>.Create;

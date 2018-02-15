@@ -42,10 +42,6 @@ object MainForm: TMainForm
         Caption = 'Mitarbeiter'
         OnClick = Mitarbeiter1Click
       end
-      object Benutzer1: TMenuItem
-        Caption = 'Benutzer'
-        OnClick = Benutzer1Click
-      end
     end
   end
   object FDQuery1: TFDQuery

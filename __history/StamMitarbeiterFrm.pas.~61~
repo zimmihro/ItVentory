@@ -89,6 +89,7 @@ begin
 
 end;
 
+
 procedure TStamMitarbeiterForm.FormShow(Sender: TObject);
 begin
   inherited;
@@ -99,14 +100,9 @@ procedure TStamMitarbeiterForm.LoeschenButtonClick(Sender: TObject);
 begin
   if messagedlg('Möchten Sie den Mitarbeiter ' + Mitarbeiter.VollName + ' wirklich löschen?', mtConfirmation,
       [mbYes, mbCancel], 0) = mrYes THEN
-    if Mitarbeiter.Loeschen then
-    begin
-      FreeAndNil(Mitarbeiter);
-      self.AnzeigeUmschalten(fsLeer);
-    end
-    else
-      messagedlg('Beim Löschen trat ein Fehler auf. Bitte wenden Sie sich an den Administrator', mtInformation,
-          [mbOk], 0);
+    Mitarbeiter.Loeschen;
+  FreeAndNil(Mitarbeiter);
+  self.AnzeigeUmschalten(fsLeer);
 end;
 
 procedure TStamMitarbeiterForm.NeuButtonClick(Sender: TObject);
@@ -118,13 +114,14 @@ end;
 
 procedure TStamMitarbeiterForm.SpeichernButtonClick(Sender: TObject);
 begin
-  if not Assigned(Mitarbeiter) then
-    Mitarbeiter := TMitarbeiter.Create(NameEdit.Text, VornameEdit.Text, MainForm.MainConnection);
-  if Mitarbeiter.Speichern then
-    self.AnzeigeUmschalten(fsGesperrt)
+  if Assigned(Mitarbeiter) then
+    Mitarbeiter.Speichern
   else
-    messagedlg('Beim Speichern trat ein Fehler auf. Bitte wenden Sie sich an den Administrator', mtInformation,
-        [mbOk], 0);
+  begin
+    Mitarbeiter := TMitarbeiter.Create(NameEdit.Text, VornameEdit.Text, MainForm.MainConnection);
+    Mitarbeiter.Speichern;
+  end;
+  self.AnzeigeUmschalten(fsGesperrt);
 end;
 
 procedure TStamMitarbeiterForm.SuchenButtonClick(Sender: TObject);

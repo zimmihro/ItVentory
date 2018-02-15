@@ -19,14 +19,14 @@ type
     Label1: TLabel;
     Label2: TLabel;
     OkButton: TButton;
-    AbbrechenButton: TButton;
+    Button1: TButton;
     procedure OkButtonClick(Sender: TObject);
-    procedure AbbrechenButtonClick(Sender: TObject);
-    procedure Passwort2EditKeyPress(Sender: TObject; var Key: Char);
+    procedure Button1Click(Sender: TObject);
   private
     { Private-Deklarationen }
   public
     Passwort: TPasswort;
+    { Public-Deklarationen }
   end;
 
 var
@@ -38,39 +38,30 @@ implementation
 
 { TPwAendernForm }
 
-procedure TPwAendernForm.AbbrechenButtonClick(Sender: TObject);
+procedure TPwAendernForm.Button1Click(Sender: TObject);
 begin
-  ModalResult := mrCancel;
+  ModalResult := false;
   self.CloseModal;
 end;
 
 procedure TPwAendernForm.OkButtonClick(Sender: TObject);
 var
-  md5Salt    : string;
-  validierung: boolean;
+  md5Hash: string;
+  md5Salt: string;
 begin
-  validierung := (Passwort1Edit.Text <> '') and (Passwort2Edit.Text <> '') and
-      (Passwort1Edit.Text = Passwort2Edit.Text);
-  if validierung then
+  if (Passwort1Edit.Text <> '') and (Passwort2Edit.Text <> '') and (Passwort1Edit.Text = Passwort2Edit.Text) then
   begin
+    md5Hash := Helpers.getMD5Hash(Passwort1Edit.Text);
     md5Salt := Helpers.getRandomString(32);
-    self.Passwort.md5Hash := Helpers.getMD5Hash(Passwort1Edit.Text + md5Salt);
-    self.Passwort.md5Salt := md5Salt;
-    ModalResult := mrOk;
+    self.Ergebnis := TStringList.Create;
+    self.Ergebnis.Add(md5Hash);
+    self.Ergebnis.Add(md5Salt);
+    ModalResult := true;
     self.CloseModal;
   end
   else
     messageDlg('Die gewählten Passwörter stimmen nicht überein. Bitte wiederholen Sie die Eingabe!', mtError,
         [mbOK], 0);
-end;
-
-procedure TPwAendernForm.Passwort2EditKeyPress(Sender: TObject; var Key: Char);
-begin
-  If Key = #13 then
-    begin
-      OkButton.Click;
-      Key := #0;
-    end;
 end;
 
 end.

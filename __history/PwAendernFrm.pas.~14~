@@ -19,10 +19,9 @@ type
     Label1: TLabel;
     Label2: TLabel;
     OkButton: TButton;
-    AbbrechenButton: TButton;
+    Button1: TButton;
     procedure OkButtonClick(Sender: TObject);
-    procedure AbbrechenButtonClick(Sender: TObject);
-    procedure Passwort2EditKeyPress(Sender: TObject; var Key: Char);
+    procedure Button1Click(Sender: TObject);
   private
     { Private-Deklarationen }
   public
@@ -38,7 +37,7 @@ implementation
 
 { TPwAendernForm }
 
-procedure TPwAendernForm.AbbrechenButtonClick(Sender: TObject);
+procedure TPwAendernForm.Button1Click(Sender: TObject);
 begin
   ModalResult := mrCancel;
   self.CloseModal;
@@ -62,15 +61,6 @@ begin
   else
     messageDlg('Die gewählten Passwörter stimmen nicht überein. Bitte wiederholen Sie die Eingabe!', mtError,
         [mbOK], 0);
-end;
-
-procedure TPwAendernForm.Passwort2EditKeyPress(Sender: TObject; var Key: Char);
-begin
-  If Key = #13 then
-    begin
-      OkButton.Click;
-      Key := #0;
-    end;
 end;
 
 end.

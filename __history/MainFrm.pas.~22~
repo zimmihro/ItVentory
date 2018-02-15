@@ -46,7 +46,7 @@ procedure TMainForm.Benutzer1Click(Sender: TObject);
 var
   BenutzerForm: TStamBenutzerForm;
 begin
-  BenutzerForm := TStamBenutzerForm.Create(Application);
+  BenutzerForm := TStamMitarbeiterForm.Create(Application);
   BenutzerForm.ShowModal;
 end;
 
@@ -75,7 +75,7 @@ procedure TMainForm.FormShow(Sender: TObject);
 begin
   self.MainConnection.Params.Database := ExtractFilePath(ParamStr(0)) + 'Database\ItVentory.db';
   self.MainConnection.Connected := true;
-  BenutzerAnmelden;
+  //BenutzerAnmelden;
 //  Eintrag.SpaltenName := 'Id';
 //  Eintrag.AnzeigeName := 'Identifikationsnummer';
 //  Suche := TList<TSucheintrag>.Create;

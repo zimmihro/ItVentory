@@ -125,6 +125,7 @@ begin
   else
     messagedlg('Beim Speichern trat ein Fehler auf. Bitte wenden Sie sich an den Administrator', mtInformation,
         [mbOk], 0);
+
 end;
 
 procedure TStamMitarbeiterForm.SuchenButtonClick(Sender: TObject);
