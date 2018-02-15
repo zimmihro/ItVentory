@@ -1,5 +1,6 @@
 inherited StamMitarbeiterForm: TStamMitarbeiterForm
   Caption = 'StamMitarbeiterForm'
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel [0]
@@ -18,6 +19,9 @@ inherited StamMitarbeiterForm: TStamMitarbeiterForm
   end
   inherited NeuButton: TButton
     OnClick = NeuButtonClick
+  end
+  inherited BearbeitenButton: TButton
+    OnClick = BearbeitenButtonClick
   end
   inherited SpeichernButton: TButton
     OnClick = SpeichernButtonClick
@@ -91,6 +95,7 @@ inherited StamMitarbeiterForm: TStamMitarbeiterForm
     Top = 152
   end
   object FDTable1: TFDTable
+    Active = True
     IndexFieldNames = 'Id'
     Connection = MainForm.MainConnection
     UpdateOptions.UpdateTableName = 'Mitarbeiter'

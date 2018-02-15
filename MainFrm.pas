@@ -57,12 +57,14 @@ begin
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
-var
-  Eintrag   : TSucheintrag;
-  Suche     : TList<TSucheintrag>;
-  SuchenForm: TSuchenForm;
-  Benutzer  : TBenutzer;
+//var
+//  Eintrag   : TSucheintrag;
+//  Suche     : TList<TSucheintrag>;
+//  SuchenForm: TSuchenForm;
+//  Benutzer  : TBenutzer;
 begin
+   self.MainConnection.Params.Database :=  ExtractFilePath(ParamStr(0))+'Database\ItVentory.db';
+   self.MainConnection.Connected := true;
   //BenutzerAnmelden;
 //  Eintrag.SpaltenName := 'Id';
 //  Eintrag.AnzeigeName := 'Identifikationsnummer';

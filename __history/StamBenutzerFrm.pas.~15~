@@ -22,9 +22,13 @@ type
     NameEdit: TEdit;
     BenutzerSource: TDataSource;
     BenutzerTable: TFDTable;
+    Label4: TLabel;
+    BenutzernameEdit: TEdit;
     procedure AnzeigeFuellen;
     procedure AnzeigeUmschalten(Status: TFormStatus); reintroduce;
     procedure NeuButtonClick(Sender: TObject);
+    procedure SpeichernButtonClick(Sender: TObject);
+    procedure AbbrechenButtonClick(Sender: TObject);
   private
     Benutzer: TBenutzer;
     { Private-Deklarationen }
@@ -40,6 +44,15 @@ implementation
 {$R *.dfm}
 
 { TStamBenutzerForm }
+
+procedure TStamBenutzerForm.AbbrechenButtonClick(Sender: TObject);
+begin
+  self.AnzeigeFuellen;
+  if Assigned(self.Benutzer) then
+    self.AnzeigeUmschalten(fsGesperrt)
+  else
+    self.AnzeigeUmschalten(fsLeer)
+end;
 
 procedure TStamBenutzerForm.AnzeigeFuellen;
 begin
@@ -60,6 +73,8 @@ begin
   inherited;
   self.NameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
   self.VornameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.BenutzernameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
+  self.PasswortAendernButton.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
   self.AnzeigeFuellen;
 end;
 
@@ -68,6 +83,21 @@ begin
   if Assigned(self.Benutzer) then
     FreeAndNil(self.Benutzer);
   self.AnzeigeUmschalten(fsNeu);
+end;
+
+procedure TStamBenutzerForm.SpeichernButtonClick(Sender: TObject);
+begin
+  begin
+    if Assigned(self.Benutzer) then
+      self.Benutzer.Speichern
+    else
+    begin
+//      self.Benutzer := TBenutzer.Create(BenutzernameEdit.Text, NameEdit.Text, VornameEdit.Text,
+//          MainForm.MainConnection);
+      self.Benutzer.Speichern;
+    end;
+    self.AnzeigeUmschalten(fsGesperrt);
+  end;
 end;
 
 end.

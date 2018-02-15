@@ -63,6 +63,5 @@ object PwAendernForm: TPwAendernForm
     Height = 25
     Caption = 'Abbrechen'
     TabOrder = 3
-    OnClick = Button1Click
   end
 end

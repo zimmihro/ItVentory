@@ -9,57 +9,49 @@ uses
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, classesPersonen, Helpers;
+  Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, classesPersonen, MainFrm, Helpers, SuchenFrm, XStammdatenFrm;
 
 type
-  TStamMitarbeiterForm = class(TForm)
-    NeuButton: TButton;
-    BearbeitenButton: TButton;
-    SpeichernButton: TButton;
-    AbbrechenButton: TButton;
-    LoeschenButton: TButton;
-    Label1: TLabel;
-    Label2: TLabel;
-    SuchenButton: TButton;
-    DBGrid1: TDBGrid;
-    FDTable1: TFDTable;
-    DataSource1: TDataSource;
-    VornameEdit: TEdit;
-    NameEdit: TEdit;
+  TStamMitarbeiterForm = class(TXStammdatenForm)
     Button1: TButton;
+    DataSource1: TDataSource;
+    FDTable1: TFDTable;
+    DBGrid1: TDBGrid;
+    NameEdit: TEdit;
+    Label2: TLabel;
+    VornameEdit: TEdit;
+    Label1: TLabel;
     function EingabeValidieren(): boolean;
     procedure SuchenButtonClick(Sender: TObject);
     procedure AnzeigeFuellen;
-    procedure AnzeigeUmschalten(Status: TFormStatus);
-    procedure FormShow(Sender: TObject);
-    procedure BearbeitenButtonClick(Sender: TObject);
+    procedure AnzeigeUmschalten(Status: TFormStatus); reintroduce;
     procedure AbbrechenButtonClick(Sender: TObject);
     procedure LoeschenButtonClick(Sender: TObject);
     procedure SpeichernButtonClick(Sender: TObject);
     procedure NeuButtonClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   private
-    FormStatus: TFormStatus;
+    Mitarbeiter: TMitarbeiter;
+    { Private-Deklarationen }
   public
     { Public-Deklarationen }
   end;
 
 var
   StamMitarbeiterForm: TStamMitarbeiterForm;
-  Mitarbeiter        : TMitarbeiter;
 
 implementation
 
-uses MainFrm, SuchenFrm;
-
 {$R *.dfm}
 
-{ TNewUserForm }
 
 procedure TStamMitarbeiterForm.AbbrechenButtonClick(Sender: TObject);
 begin
   self.AnzeigeFuellen;
-  self.AnzeigeUmschalten(fsGesperrt);
+  if Assigned(Mitarbeiter) then
+    self.AnzeigeUmschalten(fsGesperrt)
+  else
+    self.AnzeigeUmschalten(fsLeer)
 end;
 
 procedure TStamMitarbeiterForm.AnzeigeFuellen;
@@ -78,20 +70,10 @@ end;
 
 procedure TStamMitarbeiterForm.AnzeigeUmschalten(Status: TFormStatus);
 begin
-  self.FormStatus := Status;
-  self.NeuButton.Enabled := self.FormStatus in [fsGesperrt, fsLeer];
-  self.BearbeitenButton.Enabled := self.FormStatus = fsGesperrt;
-  self.SpeichernButton.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
-  self.AbbrechenButton.Enabled := self.FormStatus in [fsBearbeiten, fsNeu];
-  self.LoeschenButton.Enabled := self.FormStatus = fsGesperrt;
-  self.SuchenButton.Enabled := self.FormStatus in [fsGesperrt, fsLeer];
+  inherited;
   self.NameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
   self.VornameEdit.Enabled := not(self.FormStatus in [fsGesperrt, fsLeer]);
-end;
-
-procedure TStamMitarbeiterForm.BearbeitenButtonClick(Sender: TObject);
-begin
-  self.AnzeigeUmschalten(fsBearbeiten);
+  self.AnzeigeFuellen;
 end;
 
 procedure TStamMitarbeiterForm.Button1Click(Sender: TObject);
@@ -106,10 +88,6 @@ begin
 
 end;
 
-procedure TStamMitarbeiterForm.FormShow(Sender: TObject);
-begin
-  self.AnzeigeUmschalten(fsLeer);
-end;
 
 procedure TStamMitarbeiterForm.LoeschenButtonClick(Sender: TObject);
 begin
@@ -118,7 +96,6 @@ begin
     Mitarbeiter.Loeschen;
   FreeAndNil(Mitarbeiter);
   self.AnzeigeUmschalten(fsLeer);
-  self.AnzeigeFuellen;
 end;
 
 procedure TStamMitarbeiterForm.NeuButtonClick(Sender: TObject);
@@ -126,7 +103,6 @@ begin
   if Assigned(Mitarbeiter) then
     FreeAndNil(Mitarbeiter);
   self.AnzeigeUmschalten(fsNeu);
-  self.AnzeigeFuellen;
 end;
 
 procedure TStamMitarbeiterForm.SpeichernButtonClick(Sender: TObject);
@@ -156,7 +132,6 @@ begin
     if Assigned(Mitarbeiter) then
       FreeAndNil(Mitarbeiter);
     Mitarbeiter := TMitarbeiter.CreateFromId(SuchenForm.Ergebnis, MainForm.MainConnection);
-    self.AnzeigeFuellen;
     self.AnzeigeUmschalten(fsGesperrt);
   end;
 end;

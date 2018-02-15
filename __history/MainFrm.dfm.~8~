@@ -24,6 +24,7 @@ object MainForm: TMainForm
   end
   object MainConnection: TFDConnection
     Params.Strings = (
+      'Database=D:\Projekte\ItVentory\Win32\Debug\Database\ItVentory.db'
       'DriverID=SQLite'
       'LockingMode=Normal')
     LoginPrompt = False

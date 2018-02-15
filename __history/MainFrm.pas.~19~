@@ -63,6 +63,8 @@ procedure TMainForm.FormShow(Sender: TObject);
 //  SuchenForm: TSuchenForm;
 //  Benutzer  : TBenutzer;
 begin
+   self.MainConnection.Params.Database :=  ExtractFilePath(ParamStr(0))+'\Win32\Debug\Database\ItVentory.db';
+   self.MainConnection.Connected := true;
   //BenutzerAnmelden;
 //  Eintrag.SpaltenName := 'Id';
 //  Eintrag.AnzeigeName := 'Identifikationsnummer';

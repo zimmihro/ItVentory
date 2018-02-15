@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, classesPersonen, MainFrm, Helpers, SuchenFrm, XStammdatenFrm;
+  Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, classesPersonen, MainFrm, Helpers, SuchenFrm, PwAendernFrm, XStammdatenFrm;
 
 type
   TStamBenutzerForm = class(TXStammdatenForm)
@@ -28,6 +28,9 @@ type
     procedure AnzeigeUmschalten(Status: TFormStatus); reintroduce;
     procedure NeuButtonClick(Sender: TObject);
     procedure SpeichernButtonClick(Sender: TObject);
+    procedure AbbrechenButtonClick(Sender: TObject);
+    procedure LoeschenButtonClick(Sender: TObject);
+    procedure PasswortAendernButtonClick(Sender: TObject);
   private
     Benutzer: TBenutzer;
     { Private-Deklarationen }
@@ -43,6 +46,15 @@ implementation
 {$R *.dfm}
 
 { TStamBenutzerForm }
+
+procedure TStamBenutzerForm.AbbrechenButtonClick(Sender: TObject);
+begin
+  self.AnzeigeFuellen;
+  if Assigned(self.Benutzer) then
+    self.AnzeigeUmschalten(fsGesperrt)
+  else
+    self.AnzeigeUmschalten(fsLeer)
+end;
 
 procedure TStamBenutzerForm.AnzeigeFuellen;
 begin
@@ -68,11 +80,27 @@ begin
   self.AnzeigeFuellen;
 end;
 
+procedure TStamBenutzerForm.LoeschenButtonClick(Sender: TObject);
+begin
+  inherited;
+  if Assigned(self.Benutzer) then
+    self.Benutzer.Loeschen;
+  self.AnzeigeUmschalten(fsLeer);
+end;
+
 procedure TStamBenutzerForm.NeuButtonClick(Sender: TObject);
 begin
   if Assigned(self.Benutzer) then
     FreeAndNil(self.Benutzer);
   self.AnzeigeUmschalten(fsNeu);
+end;
+
+procedure TStamBenutzerForm.PasswortAendernButtonClick(Sender: TObject);
+var
+  PasswortForm :
+begin
+  inherited;
+
 end;
 
 procedure TStamBenutzerForm.SpeichernButtonClick(Sender: TObject);
@@ -82,8 +110,8 @@ begin
       self.Benutzer.Speichern
     else
     begin
-      self.Benutzer := TBenutzer.Create(BenutzernameEdit.Text, NameEdit.Text, VornameEdit.Text,
-          MainForm.MainConnection);
+//      self.Benutzer := TBenutzer.Create(BenutzernameEdit.Text, NameEdit.Text, VornameEdit.Text,
+//          MainForm.MainConnection);
       self.Benutzer.Speichern;
     end;
     self.AnzeigeUmschalten(fsGesperrt);

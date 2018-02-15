@@ -76,7 +76,6 @@ inherited StamBenutzerForm: TStamBenutzerForm
     Height = 25
     Caption = #196'ndern'
     TabOrder = 7
-    OnClick = PasswortAendernButtonClick
   end
   object VornameEdit: TEdit
     Left = 316

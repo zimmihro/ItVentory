@@ -33,14 +33,20 @@ inherited StamBenutzerForm: TStamBenutzerForm
   inherited NeuButton: TButton
     OnClick = NeuButtonClick
   end
+  inherited BearbeitenButton: TButton
+    OnClick = BearbeitenButtonClick
+  end
   inherited SpeichernButton: TButton
     OnClick = SpeichernButtonClick
   end
   inherited AbbrechenButton: TButton
-    OnClick = AbbrechenButtonClick
+    OnClick = nil
   end
   inherited LoeschenButton: TButton
-    OnClick = LoeschenButtonClick
+    OnClick = nil
+  end
+  inherited SuchenButton: TButton
+    OnClick = nil
   end
   object BenutzerGrid: TDBGrid
     Left = 8
@@ -76,7 +82,6 @@ inherited StamBenutzerForm: TStamBenutzerForm
     Height = 25
     Caption = #196'ndern'
     TabOrder = 7
-    OnClick = PasswortAendernButtonClick
   end
   object VornameEdit: TEdit
     Left = 316
@@ -105,6 +110,7 @@ inherited StamBenutzerForm: TStamBenutzerForm
     Top = 163
   end
   object BenutzerTable: TFDTable
+    Active = True
     IndexFieldNames = 'Id'
     Connection = MainForm.MainConnection
     UpdateOptions.UpdateTableName = 'Benutzer'

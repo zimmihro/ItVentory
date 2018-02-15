@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs, FireDAC.VCLUI.Wait, Data.DB,
   FireDAC.Comp.Client, Vcl.Menus, FireDAC.Stan.Param, FireDAC.DatS,
-  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet;
+  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, Vcl.StdCtrls;
 
 type
   TMainForm = class(TForm)
@@ -19,6 +19,7 @@ type
     Stammdaten1: TMenuItem;
     Mitarbeiter1: TMenuItem;
     FDQuery1: TFDQuery;
+    Label1: TLabel;
     procedure FormShow(Sender: TObject);
     procedure Mitarbeiter1Click(Sender: TObject);
   private
@@ -33,7 +34,7 @@ var
 
 implementation
 
-uses helpers, LoginFrm, SuchenFrm, StamMitarbeiterfrm, classesTelefonie;
+uses helpers, LoginFrm, SuchenFrm, StamMitarbeiterfrm, classesTelefonie, classesPersonen;
 
 {$R *.dfm}
 
@@ -60,17 +61,20 @@ var
   Eintrag   : TSucheintrag;
   Suche     : TList<TSucheintrag>;
   SuchenForm: TSuchenForm;
+  Benutzer  : TBenutzer;
 begin
   //BenutzerAnmelden;
-  Eintrag.SpaltenName := 'Id';
-  Eintrag.AnzeigeName := 'Identifikationsnummer';
-  Suche := TList<TSucheintrag>.Create;
-  Suche.Add(Eintrag);
-  SuchenForm := TSuchenForm.Create(application, 'Benutzer', Suche, MainConnection);
-//  SuchenForm.SqlQuery.Connection := self.MainConnection;
-//  SuchenForm.SuchEintraege := Suche;
-//  SuchenForm.TabellenName := 'Mitarbeiter';
-  SuchenForm.Show;
+//  Eintrag.SpaltenName := 'Id';
+//  Eintrag.AnzeigeName := 'Identifikationsnummer';
+//  Suche := TList<TSucheintrag>.Create;
+//  Suche.Add(Eintrag);
+//  SuchenForm := TSuchenForm.Create(Application, 'Benutzer', Suche, MainConnection);
+//  if SuchenForm.ShowModal = mrOk then
+//  begin
+//    Benutzer := TBenutzer.CreateFromId(SuchenForm.Ergebnis, MainConnection);
+//    self.Label1.Caption := Benutzer.Md5Passwort;
+//  end;
+
 end;
 
 procedure TMainForm.Mitarbeiter1Click(Sender: TObject);

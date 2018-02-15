@@ -30,6 +30,7 @@ type
     procedure SpeichernButtonClick(Sender: TObject);
     procedure NeuButtonClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     Mitarbeiter: TMitarbeiter;
     { Private-Deklarationen }
@@ -88,6 +89,12 @@ begin
 
 end;
 
+
+procedure TStamMitarbeiterForm.FormShow(Sender: TObject);
+begin
+  inherited;
+  self.FDTable1.Active := true;
+end;
 
 procedure TStamMitarbeiterForm.LoeschenButtonClick(Sender: TObject);
 begin
