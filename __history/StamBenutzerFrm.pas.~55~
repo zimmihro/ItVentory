@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
-  System.Generics.Collections, Vcl.Graphics,
+  System.Generics.Collections, System.UITypes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
@@ -57,7 +57,7 @@ implementation
 procedure TStamBenutzerForm.AbbrechenButtonClick(Sender: TObject);
 begin
   self.AnzeigeFuellen;
-  if Assigned(self.Benutzer) then
+  if Assigned(self.Benutzer) and (self.FormStatus <> fsNeu) then
     self.AnzeigeUmschalten(fsGesperrt)
   else
     self.AnzeigeUmschalten(fsLeer)
@@ -65,7 +65,7 @@ end;
 
 procedure TStamBenutzerForm.AnzeigeFuellen;
 begin
-  if Assigned(Benutzer) then
+  if Assigned(Benutzer) and (self.FormStatus <> fsNeu) then
   begin
     self.NameEdit.Text := Benutzer.Name;
     self.VornameEdit.Text := Benutzer.Vorname;
@@ -117,10 +117,16 @@ end;
 
 procedure TStamBenutzerForm.LoeschenButtonClick(Sender: TObject);
 begin
-  inherited;
-  if Assigned(self.Benutzer) then
-    self.Benutzer.Loeschen;
-  self.AnzeigeUmschalten(fsLeer);
+  if messagedlg('Möchten Sie den Benutzer ' + Benutzer.VollName + ' wirklich löschen?', mtConfirmation,
+      [mbYes, mbCancel], 0) = mrYes THEN
+    if Benutzer.Loeschen then
+    begin
+      FreeAndNil(Benutzer);
+      self.AnzeigeUmschalten(fsLeer);
+    end
+    else
+      messagedlg('Beim Löschen trat ein Fehler auf. Bitte wenden Sie sich an den Administrator', mtInformation,
+          [mbOk], 0);
 end;
 
 procedure TStamBenutzerForm.NeuButtonClick(Sender: TObject);
@@ -145,26 +151,34 @@ end;
 
 procedure TStamBenutzerForm.SpeichernButtonClick(Sender: TObject);
 begin
-  begin
+  try
     if not Assigned(self.Benutzer) then
       if self.PasswortValide then
       begin
         self.Benutzer := TBenutzer.Create(BenutzernameEdit.Text, self.BenutzerPasswort.md5Hash,
             self.BenutzerPasswort.md5salt, NameEdit.Text, VornameEdit.Text,
             MainForm.MainConnection);
-        self.BenutzerPasswort.md5Hash = '';
-        self.BenutzerPasswort.md5salt = '';
+        self.BenutzerPasswort.md5Hash := '';
+        self.BenutzerPasswort.md5salt := '';
       end
       else
       begin
-        MessageDlg('Bitte legen sie vor dem Speichern ein Passwort fest!', mtInformation, [mbOk], 0);
+        messagedlg('Bitte legen sie vor dem Speichern ein Passwort fest!', mtInformation, [mbOk], 0);
+        PasswortButtonClick(self);
         exit;
       end;
     if self.Benutzer.Speichern then
       self.AnzeigeUmschalten(fsGesperrt)
     else
-      MessageDlg('Beinm speichern trat ein Fehler auf. Bitte wenden Sie sich an IhrenAdministrator', mtInformation,
+      messagedlg('Beim speichern trat ein Fehler auf. Bitte wenden Sie sich an Ihren Administrator!', mtInformation,
           [mbOk], 0);
+  except
+    on E: Exception do
+    begin
+      messagedlg(E.ToString, mtInformation,
+          [mbOk], 0);
+      FreeAndNil(self.Benutzer);
+    end;
   end;
 end;
 

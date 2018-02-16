@@ -15,14 +15,17 @@ type
     FId     : Variant;
     FName   : string;
     FVorname: string;
+    FTeam : string;
     procedure IdErmitteln();
+    procedure DatenEinlesen(Id: integer);
     function getVollName(): string;
   public
     property Id      : Variant read FId write FId;
     property Name    : string read FName write FName;
     property Vorname : string read FVorname write FVorname;
+    property Team:string read FTeam write FTeam;
     property VollName: string read getVollName;
-    constructor Create(name, Vorname: string; Connection: TFDConnection);
+    constructor Create(name, Vorname, Team: string; Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     function Speichern(): boolean;
     function Aktualisieren(): boolean;
@@ -40,6 +43,7 @@ type
     FMd5Salt    : string;
     procedure setMd5Passwort(hash: string);
     procedure setMd5Salt(salt: string);
+    procedure DatenEinlesen(Id: integer);
     function istAnmeldeNameFrei(login: string; neuerNutzer: boolean): boolean;
   public
     property login      : string read FLogin write FLogin;
@@ -85,9 +89,11 @@ begin
       Add('UPDATE ' + self.TABLE_NAME + ' SET');
       Add('Name = :name, ');
       Add('Vorname = :vorname,');
+      Add('Team = :team');
       Add('WHERE Id = :id');
       ParamByName('name').Value := self.name;
       ParamByName('vorname').Value := self.Vorname;
+      ParamByName('team').Value := self.Team;
       ParamByName('id').Value := self.Id;
     end;
     self.SqlQuery.ExecSQL;
@@ -109,6 +115,11 @@ constructor TMitarbeiter.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
   self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
+  self.DatenEinlesen(Id);
+end;
+
+procedure TMitarbeiter.DatenEinlesen(Id: integer);
+begin
   with self.SqlQuery, SQL do
   begin
     Clear;
@@ -211,7 +222,10 @@ begin
       self.SqlQuery.ExecSQL;
     end;
     if self.SqlQuery.RowsAffected = 1 then
+    begin
       result := true;
+      self.DatenEinlesen(self.Id);
+    end;
   end
   else
     raise Exception.Create('Benutzername bereits vergeben!');
@@ -234,6 +248,11 @@ constructor TBenutzer.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
   self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
+  DatenEinlesen(Id);
+end;
+
+procedure TBenutzer.DatenEinlesen(Id: integer);
+begin
   with self.SqlQuery, SQL do
   begin
     Clear;
@@ -295,7 +314,7 @@ begin
   if Length(hash) = 32 then
     self.FMd5Passwort := hash
   else
-    messageDlg('Beim setzen des Passworts ist ein Fehler aufgetreten', mtError, [mbOK], 0);
+    raise Exception.Create('Beim setzen des Passworts ist ein Fehler aufgetreten. (Passwort-Hash zu kurz)');
 end;
 
 procedure TBenutzer.setMd5Salt(salt: string);
@@ -303,7 +322,7 @@ begin
   if Length(salt) = 32 then
     self.FMd5Salt := salt
   else
-    messageDlg('Beim setzen des Passworts ist ein Fehler aufgetreten', mtError, [mbOK], 0);
+    raise Exception.Create('Beim setzen des Passworts ist ein Fehler aufgetreten. (Passwort-Salt zu kurz)');
 end;
 
 function TBenutzer.Speichern;

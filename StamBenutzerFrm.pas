@@ -56,7 +56,6 @@ implementation
 
 procedure TStamBenutzerForm.AbbrechenButtonClick(Sender: TObject);
 begin
-  self.AnzeigeFuellen;
   if Assigned(self.Benutzer) and (self.FormStatus <> fsNeu) then
     self.AnzeigeUmschalten(fsGesperrt)
   else

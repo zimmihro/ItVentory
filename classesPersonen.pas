@@ -15,6 +15,7 @@ type
     FId     : Variant;
     FName   : string;
     FVorname: string;
+    FTeam : string;
     procedure IdErmitteln();
     procedure DatenEinlesen(Id: integer);
     function getVollName(): string;
@@ -22,8 +23,9 @@ type
     property Id      : Variant read FId write FId;
     property Name    : string read FName write FName;
     property Vorname : string read FVorname write FVorname;
+    property Team:string read FTeam write FTeam;
     property VollName: string read getVollName;
-    constructor Create(name, Vorname: string; Connection: TFDConnection);
+    constructor Create(name, Vorname, Team: string; Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     function Speichern(): boolean;
     function Aktualisieren(): boolean;
@@ -87,9 +89,11 @@ begin
       Add('UPDATE ' + self.TABLE_NAME + ' SET');
       Add('Name = :name, ');
       Add('Vorname = :vorname,');
+      Add('Team = :team');
       Add('WHERE Id = :id');
       ParamByName('name').Value := self.name;
       ParamByName('vorname').Value := self.Vorname;
+      ParamByName('team').Value := self.Team;
       ParamByName('id').Value := self.Id;
     end;
     self.SqlQuery.ExecSQL;
@@ -128,8 +132,11 @@ begin
     self.Id := self.SqlQuery.FieldByName('Id').AsInteger;
     self.name := self.SqlQuery.FieldByName('Name').AsString;
     self.Vorname := self.SqlQuery.FieldByName('Vorname').AsString;
-  end;
+    self.Team := self.SqlQuery.FieldByName('Team').AsString;
   self.SqlQuery.Close;
+  end
+  else
+    raise Exception.Create('Fehler bei der Datenabfrage. Der Mitarbeiter mit der Id:' + Id.tostring + ' konnte nicht gefunden werden.');
 end;
 
 function TMitarbeiter.getVollName: string;
@@ -143,6 +150,10 @@ begin
   begin
     Clear;
     Add('SELECT Id FROM ' + self.TABLE_NAME + ' ORDER BY Id DESC LIMIT 1');
+    Add('WHERE Name = :name');
+    Add('AND Vorname = :vorname');
+    ParamByName('name').Value := self.Name;
+    ParamByName('vorname').Values := self.Vorname;
   end;
   self.SqlQuery.Open;
   if self.SqlQuery.RecordCount = 1 then
