@@ -515,29 +515,12 @@ begin
   while not self.SqlQuery.Eof do
   begin
     KlassenListe.Add(self.SqlQuery.FieldByName('Bezeichnung').AsString);
-    self.SqlQuery.Next;
   end;
-  result := KlassenListe;
 end;
 
 function TArbeitsmittelHelper.gibArbeitsmittelTypen: TStringList;
-var
-  TypenListe: TStringList;
-  I         : integer;
 begin
-  TypenListe := TStringList.create;
-  with self.SqlQuery, SQL do
-  begin
-    Clear;
-    Add('SELECT Bezeichnung FROM ArbeitsmittelTyp')
-  end;
-  self.SqlQuery.Open();
-  while not self.SqlQuery.Eof do
-  begin
-    TypenListe.Add(self.SqlQuery.FieldByName('Bezeichnung').AsString);
-    self.SqlQuery.Next;
-  end;
-  result := TypenListe;
+
 end;
 
 end.

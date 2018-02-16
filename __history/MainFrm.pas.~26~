@@ -21,11 +21,9 @@ type
     FDQuery1: TFDQuery;
     Label1: TLabel;
     Benutzer1: TMenuItem;
-    Arbeitsmittelklassen: TMenuItem;
     procedure FormShow(Sender: TObject);
     procedure Mitarbeiter1Click(Sender: TObject);
     procedure Benutzer1Click(Sender: TObject);
-    procedure ArbeitsmittelklassenClick(Sender: TObject);
   private
     procedure BenutzerAnmelden;
     { Private-Deklarationen }
@@ -38,19 +36,11 @@ var
 
 implementation
 
-uses helpers, LoginFrm, SuchenFrm, StamMitarbeiterfrm, StamBenutzerFrm, StamGeraeteKlassenFrm, classesTelefonie, classesPersonen;
+uses helpers, LoginFrm, SuchenFrm, StamMitarbeiterfrm, StamBenutzerFrm, classesTelefonie, classesPersonen;
 
 {$R *.dfm}
 
 { TMainForm }
-
-procedure TMainForm.ArbeitsmittelklassenClick(Sender: TObject);
-var
-  KlassenForm:TStamGeraeteKlassenForm;
-begin
-  KlassenForm:=TStamGeraeteKlassenForm.Create(application);
-  KlassenForm.Show;
-end;
 
 procedure TMainForm.Benutzer1Click(Sender: TObject);
 var

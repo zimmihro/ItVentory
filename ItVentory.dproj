@@ -132,6 +132,14 @@
             <Form>StamMitarbeiterForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="StamGeraeteKlassenFrm.pas">
+            <Form>StamGeraeteKlassenForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="StamGeraeteTypFrm.pas">
+            <Form>StamGeraeteTypForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -101,7 +101,7 @@ begin
   if self.SqlQuery.RowsAffected = 1 then
     result := true
   else
-    raise Exception.Create('Bei der Aktualisierung trat ein Fehler auf.');
+    raise Exception.Create('Bei der aktualisierung trat ein Fehler auf.');
 end;
 
 constructor TMitarbeiter.Create(name, Vorname, Team: string; Connection: TFDConnection);
@@ -206,6 +206,7 @@ begin
     end
     else
       raise Exception.Create('Es ist ein Fehler beim Speichern aufgetreten. Bitte wiederholen sie den Vorgang!');
+
   end
   else
     result := self.Aktualisieren;

@@ -2,7 +2,7 @@ unit Helpers;
 
 interface
 
-uses IdHashMessageDigest, idHash, VCL.Forms, classesArbeitsmittel, Classes;
+uses IdHashMessageDigest, idHash, VCL.Forms;
 
 type
   TSuchEintrag = record

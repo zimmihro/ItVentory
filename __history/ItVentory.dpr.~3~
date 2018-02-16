@@ -13,9 +13,7 @@ uses
   classesGeraeteAusgabe in 'classesGeraeteAusgabe.pas',
   SuchenFrm in 'SuchenFrm.pas' {SuchenForm},
   XStammdatenFrm in 'XStammdatenFrm.pas' {XStammdatenForm},
-  StamMitarbeiterFrm in 'StamMitarbeiterFrm.pas' {StamMitarbeiterForm},
-  StamGeraeteKlassenFrm in 'StamGeraeteKlassenFrm.pas' {StamGeraeteKlassenForm},
-  StamGeraeteTypFrm in 'StamGeraeteTypFrm.pas' {StamGeraeteTypForm};
+  StamMitarbeiterFrm in 'StamMitarbeiterFrm.pas' {StamMitarbeiterForm};
 
 {$R *.res}
 
@@ -29,7 +27,5 @@ begin
   Application.CreateForm(TSuchenForm, SuchenForm);
   Application.CreateForm(TXStammdatenForm, XStammdatenForm);
   Application.CreateForm(TStamMitarbeiterForm, StamMitarbeiterForm);
-  Application.CreateForm(TStamGeraeteKlassenForm, StamGeraeteKlassenForm);
-  Application.CreateForm(TStamGeraeteTypForm, StamGeraeteTypForm);
   Application.Run;
 end.

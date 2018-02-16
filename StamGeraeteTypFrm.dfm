@@ -1,0 +1,70 @@
+inherited StamGeraeteTypForm: TStamGeraeteTypForm
+  Caption = 'StamGeraeteTypForm'
+  ClientHeight = 199
+  ClientWidth = 261
+  OnCreate = FormCreate
+  ExplicitWidth = 277
+  ExplicitHeight = 238
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited NeuButton: TButton
+    Left = 176
+    ExplicitLeft = 176
+  end
+  inherited BearbeitenButton: TButton
+    Left = 176
+    ExplicitLeft = 176
+  end
+  inherited SpeichernButton: TButton
+    Left = 176
+    ExplicitLeft = 176
+  end
+  inherited AbbrechenButton: TButton
+    Left = 176
+    ExplicitLeft = 176
+  end
+  inherited LoeschenButton: TButton
+    Left = 176
+    ExplicitLeft = 176
+  end
+  inherited SuchenButton: TButton
+    Left = 176
+    ExplicitLeft = 176
+  end
+  object BezeichnungEdit: TEdit
+    Left = 16
+    Top = 20
+    Width = 137
+    Height = 21
+    TabOrder = 6
+    Text = 'BezeichnungEdit'
+  end
+  object HerstellerComboBox: TComboBox
+    Left = 16
+    Top = 63
+    Width = 137
+    Height = 21
+    TabOrder = 7
+    Text = 'HerstellerComboBox'
+  end
+  object ArbeitsmittelKlasseComboBox: TComboBox
+    Left = 16
+    Top = 103
+    Width = 137
+    Height = 21
+    TabOrder = 8
+    Text = 'ArbeitsmittelKlasseComboBox'
+  end
+  object HatSimRadioGroup: TRadioGroup
+    Left = 16
+    Top = 130
+    Width = 137
+    Height = 37
+    Caption = 'Sim-Karte:'
+    Columns = 2
+    Items.Strings = (
+      'Ja'
+      'Nein')
+    TabOrder = 9
+  end
+end

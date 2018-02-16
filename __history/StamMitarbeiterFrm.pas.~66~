@@ -118,7 +118,7 @@ end;
 procedure TStamMitarbeiterForm.SpeichernButtonClick(Sender: TObject);
 begin
   if not Assigned(Mitarbeiter) then
-    Mitarbeiter := TMitarbeiter.Create(NameEdit.Text, VornameEdit.Text, '', MainForm.MainConnection);
+    Mitarbeiter := TMitarbeiter.Create(NameEdit.Text, VornameEdit.Text, MainForm.MainConnection);
   if Mitarbeiter.Speichern then
     self.AnzeigeUmschalten(fsGesperrt)
   else

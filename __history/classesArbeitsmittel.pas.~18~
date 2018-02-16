@@ -2,21 +2,12 @@ unit classesArbeitsmittel;
 
 interface
 
-uses System.SysUtils, System.StrUtils, Vcl.Dialogs, System.UITypes, classes, classesPersonen, classesTelefonie,
+uses System.SysUtils, System.StrUtils, Vcl.Dialogs, System.UITypes, classesPersonen, classesTelefonie,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Vcl.StdCtrls, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids;
 
 type
-  TArbeitsmittelHelper = class
-  private
-    SqlQuery: TFDQuery;
-  public
-    function gibArbeitsmittelKlassen(): TStringList;
-    function gibArbeitsmittelTypen(): TStringList;
-    constructor create(Connection: TFDConnection);
-  end;
-
   TGegenstand = class
   private
     SqlQuery    : TFDQuery;
@@ -37,7 +28,7 @@ type
   private
 
   public
-    constructor create(Bezeichnung: string; Connection: TFDConnection);
+    constructor Create(Bezeichnung: string; Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
     procedure Aktualisieren();
@@ -51,7 +42,7 @@ type
   private
     procedure IdErmitteln();
   public
-    constructor create(Bezeichnung: string; Connection: TFDConnection);
+    constructor Create(Bezeichnung: string; Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     function Speichern(): boolean;
     function Aktualisieren(): boolean;
@@ -71,7 +62,7 @@ type
     property Hersteller         : THersteller read FHersteller write FHersteller;
     property ArbeitsmittelKlasse: TArbeitsmittelKlasse read FArbeistmittelKlasse write FArbeistmittelKlasse;
     property HatSim             : boolean read FHatSim write FHatSim;
-    constructor create(Bezeichnung: string; Hersteller: THersteller; klasse: TArbeitsmittelKlasse;
+    constructor Create(Bezeichnung: string; Hersteller: THersteller; klasse: TArbeitsmittelKlasse;
         HatSim: boolean; Connection: TFDConnection);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
@@ -94,7 +85,7 @@ type
     property Imei            : Variant read FImei write setImei;
     property SerienNummer    : Variant read FSerienNummer write FSerienNummer;
     property SimKarte        : TSimKarte read FSimKarte write FSimKarte;
-    constructor create(Bezeichnung: string; typ: TArbeitsmittelTyp; Imei, serienNr: Variant;
+    constructor Create(Bezeichnung: string; typ: TArbeitsmittelTyp; Imei, serienNr: Variant;
         Connection: TFDConnection; sim: TSimKarte = nil);
     constructor CreateFromId(Id: integer; Connection: TFDConnection);
     procedure Speichern();
@@ -157,17 +148,17 @@ begin
   end;
 end;
 
-constructor THersteller.create(Bezeichnung: string; Connection: TFDConnection);
+constructor THersteller.Create(Bezeichnung: string; Connection: TFDConnection);
 begin
   self.Id := 0;
   self.Bezeichnung := Bezeichnung;
-  self.SqlQuery := TFDQuery.create(nil);
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
 end;
 
 constructor THersteller.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
-  self.SqlQuery := TFDQuery.create(nil);
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
   with self.SqlQuery, SQL do
   begin
@@ -202,9 +193,8 @@ end;
 
 { TArbeitsmittelKlasse }
 
-function TArbeitsmittelKlasse.Aktualisieren(): boolean;
+procedure TArbeitsmittelKlasse.Aktualisieren;
 begin
-  result := false;
   if self.Id <> 0 then
   begin
     with self.SqlQuery, SQL do
@@ -217,22 +207,20 @@ begin
       ParamByName('id').Value := self.Id;
     end;
     self.SqlQuery.ExecSQL;
-    if self.SqlQuery.RowsAffected = 1 then
-      result := true;
   end;
 end;
 
-constructor TArbeitsmittelKlasse.create(Bezeichnung: string; Connection: TFDConnection);
+constructor TArbeitsmittelKlasse.Create(Bezeichnung: string; Connection: TFDConnection);
 begin
   self.Id := 0;
   self.Bezeichnung := Bezeichnung;
-  self.SqlQuery := TFDQuery.create(nil);
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection
 end;
 
 constructor TArbeitsmittelKlasse.CreateFromId(Id: integer; Connection: TFDConnection);
 begin
-  self.SqlQuery := TFDQuery.create(nil);
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
   with self.SqlQuery, SQL do
   begin
@@ -278,6 +266,7 @@ begin
     if self.SqlQuery.RowsAffected = 1 then
     begin
       result := true;
+      self.SqlQuery.Close;
       self.IdErmitteln;
     end
     else
@@ -310,7 +299,7 @@ begin
   end;
 end;
 
-constructor TArbeitsmittelTyp.create(Bezeichnung: string; Hersteller: THersteller;
+constructor TArbeitsmittelTyp.Create(Bezeichnung: string; Hersteller: THersteller;
     klasse: TArbeitsmittelKlasse; HatSim: boolean; Connection: TFDConnection);
 begin
   self.Id := 0;
@@ -318,7 +307,7 @@ begin
   self.Hersteller := Hersteller;
   self.ArbeitsmittelKlasse := klasse;
   self.HatSim := HatSim;
-  self.SqlQuery := TFDQuery.create(nil);
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
 end;
 
@@ -327,7 +316,7 @@ var
   Hersteller_Id: integer;
   Klassen_Id   : integer;
 begin
-  self.SqlQuery := TFDQuery.create(nil);
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
   with self.SqlQuery, SQL do
   begin
@@ -412,7 +401,7 @@ begin
   end;
 end;
 
-constructor TArbeitsmittel.create(Bezeichnung: string; typ: TArbeitsmittelTyp; Imei, serienNr: Variant;
+constructor TArbeitsmittel.Create(Bezeichnung: string; typ: TArbeitsmittelTyp; Imei, serienNr: Variant;
     Connection: TFDConnection; sim: TSimKarte = nil);
 begin
   self.Id := 0;
@@ -421,7 +410,7 @@ begin
   self.Imei := Imei;
   self.SerienNummer := serienNr;
   self.SimKarte := sim;
-  self.SqlQuery := TFDQuery.create(nil);
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
 end;
 
@@ -430,7 +419,7 @@ var
   Typen_Id: integer;
   Sim_Id  : integer;
 begin
-  self.SqlQuery := TFDQuery.create(nil);
+  self.SqlQuery := TFDQuery.Create(nil);
   self.SqlQuery.Connection := Connection;
   with self.SqlQuery, SQL do
   begin
@@ -490,54 +479,6 @@ begin
     self.SqlQuery.ExecSQL;
     self.IdErmitteln;
   end;
-end;
-
-{ TArbeitsmittelHelper }
-
-constructor TArbeitsmittelHelper.create(Connection: TFDConnection);
-begin
-  self.SqlQuery := TFDQuery.create(nil);
-  self.SqlQuery.Connection := Connection;
-end;
-
-function TArbeitsmittelHelper.gibArbeitsmittelKlassen: TStringList;
-var
-  KlassenListe: TStringList;
-  I           : integer;
-begin
-  KlassenListe := TStringList.create;
-  with self.SqlQuery, SQL do
-  begin
-    Clear;
-    Add('SELECT Bezeichnung FROM ArbeitsmittelKlasse')
-  end;
-  self.SqlQuery.Open();
-  while not self.SqlQuery.Eof do
-  begin
-    KlassenListe.Add(self.SqlQuery.FieldByName('Bezeichnung').AsString);
-    self.SqlQuery.Next;
-  end;
-  result := KlassenListe;
-end;
-
-function TArbeitsmittelHelper.gibArbeitsmittelTypen: TStringList;
-var
-  TypenListe: TStringList;
-  I         : integer;
-begin
-  TypenListe := TStringList.create;
-  with self.SqlQuery, SQL do
-  begin
-    Clear;
-    Add('SELECT Bezeichnung FROM ArbeitsmittelTyp')
-  end;
-  self.SqlQuery.Open();
-  while not self.SqlQuery.Eof do
-  begin
-    TypenListe.Add(self.SqlQuery.FieldByName('Bezeichnung').AsString);
-    self.SqlQuery.Next;
-  end;
-  result := TypenListe;
 end;
 
 end.

@@ -101,7 +101,7 @@ begin
   if self.SqlQuery.RowsAffected = 1 then
     result := true
   else
-    raise Exception.Create('Bei der Aktualisierung trat ein Fehler auf.');
+    raise Exception.Create('Bei der aktualisierung trat ein Fehler auf.');
 end;
 
 constructor TMitarbeiter.Create(name, Vorname, Team: string; Connection: TFDConnection);
@@ -140,7 +140,7 @@ begin
   end
   else
     raise Exception.Create
-        (Format('Fehler bei der Datenabfrage. Der Mitarbeiter mit der Id:%d konnte nicht gefunden werden.', [Id]));
+        (Format('Fehler bei der Datenabfrage. Der Mitarbeiter mit der Id:%d konnte nicht gefunden werden.', Id));
 end;
 
 function TMitarbeiter.getVollName: string;
@@ -157,7 +157,7 @@ begin
     Add('WHERE Name = :name');
     Add('AND Vorname = :vorname');
     ParamByName('name').Value := self.name;
-    ParamByName('vorname').Value := self.Vorname;
+    ParamByName('vorname').Values := self.Vorname;
   end;
   self.SqlQuery.Open;
   if self.SqlQuery.RecordCount = 1 then
@@ -179,10 +179,7 @@ begin
     self.SqlQuery.ExecSQL;
   end;
   if self.SqlQuery.RowsAffected = 1 then
-    result := true
-  else
-    raise Exception.Create
-        (Format('Fehler beim Löschen. Der Mitarbeiter mit der Id:%d konnte nicht gefunden werden.', [Id]));
+    result := true;
 end;
 
 function TMitarbeiter.Speichern(): boolean;
@@ -199,13 +196,9 @@ begin
       ParamByName('vorname').Value := self.Vorname;
     end;
     self.SqlQuery.ExecSQL;
+    self.IdErmitteln;
     if self.SqlQuery.RowsAffected = 1 then
-    begin
       result := true;
-      self.IdErmitteln;
-    end
-    else
-      raise Exception.Create('Es ist ein Fehler beim Speichern aufgetreten. Bitte wiederholen sie den Vorgang!');
   end
   else
     result := self.Aktualisieren;

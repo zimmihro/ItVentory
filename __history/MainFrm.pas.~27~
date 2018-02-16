@@ -48,8 +48,7 @@ procedure TMainForm.ArbeitsmittelklassenClick(Sender: TObject);
 var
   KlassenForm:TStamGeraeteKlassenForm;
 begin
-  KlassenForm:=TStamGeraeteKlassenForm.Create(application);
-  KlassenForm.Show;
+
 end;
 
 procedure TMainForm.Benutzer1Click(Sender: TObject);

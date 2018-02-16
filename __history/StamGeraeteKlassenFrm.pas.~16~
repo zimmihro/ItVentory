@@ -1,0 +1,117 @@
+unit StamGeraeteKlassenFrm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  System.Generics.Collections, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, classesArbeitsmittel, MainFrm, Helpers, SuchenFrm, XStammdatenFrm;
+
+type
+  TStamGeraeteKlassenForm = class(TXStammdatenForm)
+    BezeichnungEdit: TEdit;
+    Label1: TLabel;
+    procedure AnzeigeUmschalten(Status: TFormStatus);
+    procedure AnzeigeFuellen;
+    procedure NeuButtonClick(Sender: TObject);
+    procedure AbbrechenButtonClick(Sender: TObject);
+    procedure LoeschenButtonClick(Sender: TObject);
+    procedure SpeichernButtonClick(Sender: TObject);
+    procedure SuchenButtonClick(Sender: TObject);
+  private
+    ArbeitsmittelKlasse: TArbeitsmittelKlasse;
+    { Private-Deklarationen }
+  public
+    { Public-Deklarationen }
+  end;
+
+var
+  StamGeraeteKlassenForm: TStamGeraeteKlassenForm;
+
+implementation
+
+{$R *.dfm}
+
+{ TStamGeraeteKlassenForm }
+
+procedure TStamGeraeteKlassenForm.AbbrechenButtonClick(Sender: TObject);
+begin
+  if Assigned(self.ArbeitsmittelKlasse) and (self.FormStatus = fsNeu) then
+    self.AnzeigeUmschalten(fsGesperrt)
+  else
+    self.AnzeigeUmschalten(fsLeer)
+end;
+
+procedure TStamGeraeteKlassenForm.AnzeigeFuellen;
+begin
+  if (Assigned(self.ArbeitsmittelKlasse)) and (self.FormStatus <> fsNeu) then
+    self.BezeichnungEdit.Text = self.ArbeitsmittelKlasse.Bezeichnung
+  else
+    self.BezeichnungEdit.Clear;
+end;
+
+procedure TStamGeraeteKlassenForm.AnzeigeUmschalten(Status: TFormStatus);
+begin
+  inherited;
+  self.BezeichnungEdit.Enabled := self.FormStatus in [fsNeu, fsBearbeiten];
+  self.AnzeigeFuellen;
+end;
+
+procedure TStamGeraeteKlassenForm.LoeschenButtonClick(Sender: TObject);
+begin
+  inherited;
+  if messagedlg(Format('Möchten sie die Arbeitsmittelklasse %s wirklich löschen?',
+      [self.ArbeitsmittelKlasse.Bezeichnung]), mtConfirmation,
+      [mbYes, mbCancel], 0) = mrYes THEN
+    if self.ArbeitsmittelKlasse.Loeschen then
+    begin
+      freeAndNil(self.ArbeitsmittelKlasse);
+      self.AnzeigeUmschalten(fsLeer);
+    end
+    else
+      messagedlg('Beim Löschen trat ein Fehler auf. Bitte wenden Sie sich an den Administrator', mtInformation,
+          [mbOk], 0);
+end;
+
+procedure TStamGeraeteKlassenForm.NeuButtonClick(Sender: TObject);
+begin
+  inherited;
+  if Assigned(self.ArbeitsmittelKlasse) then
+    freeAndNil(self.ArbeitsmittelKlasse);
+  self.AnzeigeUmschalten(fsNeu);
+end;
+
+procedure TStamGeraeteKlassenForm.SpeichernButtonClick(Sender: TObject);
+begin
+  inherited;
+  if not Assigned(self.ArbeitsmittelKlasse) then
+    self.ArbeitsmittelKlasse := TArbeitsmittelKlasse.Create(BezeichnungEdit.Text, MainForm.MainConnection);
+  if self.ArbeitsmittelKlasse.Speichern then
+    self.AnzeigeUmschalten(fsGesperrt)
+  else
+    messagedlg('Beim Speichern trat ein Fehler auf. Bitte wenden Sie sich an den Administrator', mtInformation,
+        [mbOk], 0);
+end;
+
+procedure TStamGeraeteKlassenForm.SuchenButtonClick(Sender: TObject);
+var
+  SuchenForm   : TSuchenForm;
+  SuchEintraege: TList<TSucheintrag>;
+begin
+  SuchEintraege := TList<TSucheintrag>.Create;
+  SuchEintraege.Add(TSucheintrag.Create('Bezeichnung', 'Nachname'));
+  SuchenForm := TSuchenForm.Create(application, 'ArbeitsmittelKlasse', SuchEintraege, MainForm.MainConnection);
+  if SuchenForm.ShowModal = mrOK then
+  begin
+    if Assigned(self.ArbeitsmittelKlasse) then
+      FreeAndNil(self.ArbeitsmittelKlasse);
+    self.ArbeitsmittelKlasse := TArbeitsmittelKlasse.CreateFromId(SuchenForm.Ergebnis, MainForm.MainConnection);
+    self.AnzeigeUmschalten(fsGesperrt);
+  end;
+end;
+
+end.

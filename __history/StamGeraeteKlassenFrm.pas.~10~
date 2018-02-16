@@ -1,0 +1,60 @@
+unit StamGeraeteKlassenFrm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  System.Generics.Collections, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Mask, Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, classesArbeitsmittel, MainFrm, Helpers, SuchenFrm, XStammdatenFrm;
+
+type
+  TStamGeraeteKlassenForm = class(TXStammdatenForm)
+    BezeichnungEdit: TEdit;
+    Label1: TLabel;
+    procedure AnzeigeUmschalten(Status: TFormStatus);
+    procedure AnzeigeFuellen;
+    procedure NeuButtonClick(Sender: TObject);
+  private
+    ArbeitsmittelKlasse: TArbeitsmittelKlasse;
+    { Private-Deklarationen }
+  public
+    { Public-Deklarationen }
+  end;
+
+var
+  StamGeraeteKlassenForm: TStamGeraeteKlassenForm;
+
+implementation
+
+{$R *.dfm}
+
+{ TStamGeraeteKlassenForm }
+
+procedure TStamGeraeteKlassenForm.AnzeigeFuellen;
+begin
+  if (Assigned(self.ArbeitsmittelKlasse)) and (self.FormStatus <> fsNeu) then
+    self.BezeichnungEdit.Text = self.ArbeitsmittelKlasse.Bezeichnung
+  else
+    self.BezeichnungEdit.Clear;
+end;
+
+procedure TStamGeraeteKlassenForm.AnzeigeUmschalten(Status: TFormStatus);
+begin
+  inherited;
+  self.BezeichnungEdit.Enabled := self.FormStatus in [fsNeu, fsBearbeiten];
+  self.AnzeigeFuellen;
+end;
+
+procedure TStamGeraeteKlassenForm.NeuButtonClick(Sender: TObject);
+begin
+  inherited;
+  if Assigned(self.ArbeitsmittelKlasse) then
+    freeAndNil(self.ArbeitsmittelKlasse);
+  self.AnzeigeUmschalten(fsNeu);
+end;
+
+end.

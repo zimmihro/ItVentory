@@ -1,4 +1,4 @@
-unit classesArbeitsmittel;
+﻿unit classesArbeitsmittel;
 
 interface
 
@@ -517,15 +517,15 @@ begin
     KlassenListe.Add(self.SqlQuery.FieldByName('Bezeichnung').AsString);
     self.SqlQuery.Next;
   end;
-  result := KlassenListe;
+  Result := KlassenListe;
 end;
 
 function TArbeitsmittelHelper.gibArbeitsmittelTypen: TStringList;
 var
-  TypenListe: TStringList;
-  I         : integer;
+  KlassenListe: TStringList;
+  I           : integer;
 begin
-  TypenListe := TStringList.create;
+  KlassenListe := TStringList.create;
   with self.SqlQuery, SQL do
   begin
     Clear;
@@ -534,10 +534,10 @@ begin
   self.SqlQuery.Open();
   while not self.SqlQuery.Eof do
   begin
-    TypenListe.Add(self.SqlQuery.FieldByName('Bezeichnung').AsString);
+    KlassenListe.Add(self.SqlQuery.FieldByName('Bezeichnung').AsString);
     self.SqlQuery.Next;
   end;
-  result := TypenListe;
+  Result := KlassenListe;
 end;
 
 end.

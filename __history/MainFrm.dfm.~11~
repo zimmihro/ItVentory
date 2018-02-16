@@ -46,10 +46,6 @@ object MainForm: TMainForm
         Caption = 'Benutzer'
         OnClick = Benutzer1Click
       end
-      object Arbeitsmittelklassen: TMenuItem
-        Caption = 'Arbeitsmittelklassen'
-        OnClick = ArbeitsmittelklassenClick
-      end
     end
   end
   object FDQuery1: TFDQuery

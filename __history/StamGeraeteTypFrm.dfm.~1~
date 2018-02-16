@@ -1,0 +1,5 @@
+inherited StamGeraeteTypForm: TStamGeraeteTypForm
+  Caption = 'StamGeraeteTypForm'
+  PixelsPerInch = 96
+  TextHeight = 13
+end
